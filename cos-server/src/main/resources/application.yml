@@ -1,0 +1,54 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  main:
+    allow-circular-references: true
+  datasource:
+    druid:
+      driver-class-name: ${cos.datasource.driver-class-name}
+      url: jdbc:mysql://${cos.datasource.host}:${cos.datasource.port}/${cos.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: ${cos.datasource.username}
+      password: ${cos.datasource.password}
+  redis:
+    host: ${cos.redis.host}
+    port: ${cos.redis.port}
+    database: ${cos.redis.database}
+
+mybatis-plus:
+  #mapper配置文件
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.cos.entity
+  configuration:
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com:
+      cos:
+        mapper: debug
+        service: info
+        controller: info
+
+cos:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: itcast
+    # 设置jwt过期时间
+    admin-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    admin-token-name: token
+    user-secret-key: jingsen
+    user-ttl: 7200000
+    user-token-name: authentication
+  alioss:
+    endpoint: ${cos.alioss.endpoint}
+    access-key-id: ${cos.alioss.access-key-id}
+    access-key-secret: ${cos.alioss.access-key-secret}
+    bucket-name: ${cos.alioss.bucket-name}
+  wechat:
+    appid: ${cos.wechat.appid}
+    secret: ${cos.wechat.secret}

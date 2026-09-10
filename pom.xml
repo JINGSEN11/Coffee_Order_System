@@ -11,6 +11,7 @@
     <groupId>com.vincent</groupId>
     <artifactId>Coffee_Order_System</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>Coffee_Order_System</name>
     <description>Coffee_Order_System</description>
     <url/>
@@ -20,6 +21,11 @@
     <developers>
         <developer/>
     </developers>
+    <modules>
+        <module>cos-server</module>
+        <module>cos-pojo</module>
+        <module>cos-common</module>
+    </modules>
     <scm>
         <connection/>
         <developerConnection/>
