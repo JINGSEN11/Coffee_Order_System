@@ -16,6 +16,9 @@ spring:
     host: ${cos.redis.host}
     port: ${cos.redis.port}
     database: ${cos.redis.database}
+  jackson:
+    time-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
 
 mybatis-plus:
   #mapper配置文件
