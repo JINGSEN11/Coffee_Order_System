@@ -13,6 +13,7 @@ import com.vincent.mapper.ReviewMapper;
 import com.vincent.mapper.SkuMapper;
 import com.vincent.service.DashboardService;
 import com.vincent.vo.AlertVO;
+import com.vincent.vo.DashboardOverviewVO;
 import com.vincent.vo.DashboardVO;
 import com.vincent.vo.OrderStatVO;
 import lombok.RequiredArgsConstructor;
@@ -199,4 +200,12 @@ public class DashboardServiceImpl implements DashboardService {
         return alerts;
     }
 
+    @Override
+    public DashboardOverviewVO overview() {
+        DashboardOverviewVO overview = new DashboardOverviewVO();
+        overview.setStats(stats());
+        overview.setAlerts(alerts());
+        log.info("Management dashboard overview query completed");
+        return overview;
+    }
 }

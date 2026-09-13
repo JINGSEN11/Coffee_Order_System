@@ -1,6 +1,7 @@
 package com.vincent.service;
 
 import com.vincent.vo.AlertVO;
+import com.vincent.vo.DashboardOverviewVO;
 import com.vincent.vo.DashboardVO;
 import com.vincent.vo.OrderStatVO;
 
@@ -14,5 +15,7 @@ public interface DashboardService {
     List<OrderStatVO> trend(LocalDate startDate, LocalDate endDate);
 
     List<AlertVO> alerts();
+
+    DashboardOverviewVO overview();
 
 }
