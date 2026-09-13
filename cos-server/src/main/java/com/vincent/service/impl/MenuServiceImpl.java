@@ -29,6 +29,18 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
     private final RoleMenuMapper roleMenuMapper;
 
     @Override
+    public List<MenuVO> listAll() {
+        List<Menu> allMenus = menuMapper.selectList(
+                new LambdaQueryWrapper<Menu>().orderByAsc(Menu::getSort)
+        );
+        return allMenus.stream().map(menu -> {
+            MenuVO vo = new MenuVO();
+            BeanUtils.copyProperties(menu, vo);
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public List<MenuVO> tree() {
         List<Menu> allMenus = menuMapper.selectList(
                 new LambdaQueryWrapper<Menu>().orderByAsc(Menu::getSort)

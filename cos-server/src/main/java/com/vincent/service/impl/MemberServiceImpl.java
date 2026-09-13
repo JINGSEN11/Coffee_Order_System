@@ -28,6 +28,18 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     private final MemberMapper memberMapper;
 
     @Override
+    public List<MemberVO> listAll() {
+        List<Member> list = memberMapper.selectList(
+                new LambdaQueryWrapper<Member>().orderByDesc(Member::getCreatedAt)
+        );
+        return list.stream().map(m -> {
+            MemberVO vo = new MemberVO();
+            BeanUtils.copyProperties(m, vo);
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public PageVO<MemberVO> pageQuery(String keyword, Integer status, Integer pageNum, Integer pageSize) {
         Page<Member> page = new Page<>(pageNum, pageSize);
 

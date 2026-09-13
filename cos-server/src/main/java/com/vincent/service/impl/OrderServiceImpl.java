@@ -11,6 +11,7 @@ import com.vincent.entity.Orders;
 import com.vincent.mapper.OrderItemMapper;
 import com.vincent.mapper.OrderMapper;
 import com.vincent.service.OrderService;
+import com.vincent.vo.OrderBoardVO;
 import com.vincent.vo.OrderItemVO;
 import com.vincent.vo.OrderVO;
 import com.vincent.vo.PageVO;
@@ -25,6 +26,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,6 +37,56 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
+
+    @Override
+    public OrderBoardVO board() {
+        LocalDateTime todayStart = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+
+        long pendingCount = count(new LambdaQueryWrapper<Orders>()
+                .in(Orders::getStatus, 0, 1));
+        long preparingCount = count(new LambdaQueryWrapper<Orders>()
+                .eq(Orders::getStatus, 2));
+        long completedCount = count(new LambdaQueryWrapper<Orders>()
+                .eq(Orders::getStatus, 3));
+        long cancelledCount = count(new LambdaQueryWrapper<Orders>()
+                .in(Orders::getStatus, 4, 5));
+        long todayOrderCount = count(new LambdaQueryWrapper<Orders>()
+                .ge(Orders::getCreatedAt, todayStart));
+
+        List<Orders> todayCompleted = orderMapper.selectList(
+                new LambdaQueryWrapper<Orders>()
+                        .eq(Orders::getStatus, 3)
+                        .ge(Orders::getCreatedAt, todayStart)
+        );
+        BigDecimal todayRevenue = todayCompleted.stream()
+                .map(Orders::getAmount)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        OrderBoardVO vo = new OrderBoardVO();
+        vo.setPendingCount(pendingCount);
+        vo.setPreparingCount(preparingCount);
+        vo.setCompletedCount(completedCount);
+        vo.setCancelledCount(cancelledCount);
+        vo.setTodayOrderCount(todayOrderCount);
+        vo.setTodayRevenue(todayRevenue);
+        return vo;
+    }
+
+    @Override
+    public List<OrderVO> pool() {
+        List<Orders> orders = orderMapper.selectList(
+                new LambdaQueryWrapper<Orders>()
+                        .in(Orders::getStatus, 0, 1, 2)
+                        .orderByDesc(Orders::getCreatedAt)
+                        .last("LIMIT 20")
+        );
+        return orders.stream().map(order -> {
+            OrderVO vo = new OrderVO();
+            BeanUtils.copyProperties(order, vo);
+            return vo;
+        }).collect(Collectors.toList());
+    }
 
     @Override
     public OrderVO detail(Long id) {
@@ -65,13 +117,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         // 使用 MyBatis-Plus 分页
         Page<Orders> page = new Page<>(dto.getPage(), dto.getPageSize());
 
+        // 提前处理日期参数，避免 null 时 atStartOfDay() 报 NPE
+        LocalDateTime startDateTime = dto.getStartDate() != null ? dto.getStartDate().atStartOfDay() : null;
+        LocalDateTime endDateTime = dto.getEndDate() != null ? dto.getEndDate().plusDays(1).atStartOfDay() : null;
+
         LambdaQueryWrapper<Orders> wrapper = new LambdaQueryWrapper<Orders>()
                 .eq(dto.getStatus() != null, Orders::getStatus, dto.getStatus())
                 .eq(dto.getType() != null, Orders::getType, dto.getType())
                 .eq(dto.getShopId() != null, Orders::getShopId, dto.getShopId())
                 .like(StringUtils.hasText(dto.getOrderNo()), Orders::getOrderNo, dto.getOrderNo())
-                .ge(dto.getStartDate() != null, Orders::getCreatedAt, dto.getStartDate().atStartOfDay())
-                .le(dto.getEndDate() != null, Orders::getCreatedAt, dto.getEndDate().plusDays(1).atStartOfDay())
+                .ge(dto.getStartDate() != null, Orders::getCreatedAt, startDateTime)
+                .le(dto.getEndDate() != null, Orders::getCreatedAt, endDateTime)
                 .orderByDesc(Orders::getCreatedAt);
 
         // 使用继承自 ServiceImpl 的 page 方法

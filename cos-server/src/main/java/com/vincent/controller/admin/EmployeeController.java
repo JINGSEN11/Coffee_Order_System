@@ -1,10 +1,12 @@
 package com.vincent.controller.admin;
 
+import com.vincent.common.BaseContext;
 import com.vincent.common.Result;
 import com.vincent.dto.EmployeeCreateDTO;
 import com.vincent.service.EmployeeService;
 import com.vincent.vo.EmployeeVO;
 import com.vincent.vo.PageVO;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,11 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
+    @GetMapping("/list")
+    public Result<List<EmployeeVO>> list() {
+        return Result.success(employeeService.listAll());
+    }
+
     @GetMapping("/page")
     public Result<PageVO<EmployeeVO>> page(
             @RequestParam(required = false) String keyword,
@@ -25,6 +32,14 @@ public class EmployeeController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize) {
         return Result.success(employeeService.pageQuery(keyword, roleId, shopId, page, pageSize));
+    }
+
+    /**
+     * 当前登录员工信息
+     */
+    @GetMapping("/current")
+    public Result<EmployeeVO> current() {
+        return Result.success(employeeService.getEmployeeDetail(BaseContext.getCurrentId()));
     }
 
     @GetMapping("/{id}")

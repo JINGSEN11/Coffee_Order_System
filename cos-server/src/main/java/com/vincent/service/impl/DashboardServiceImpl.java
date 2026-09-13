@@ -1,11 +1,13 @@
 package com.vincent.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.vincent.entity.Category;
 import com.vincent.entity.Member;
 import com.vincent.entity.Orders;
 import com.vincent.entity.Product;
 import com.vincent.entity.Review;
 import com.vincent.entity.Sku;
+import com.vincent.mapper.CategoryMapper;
 import com.vincent.mapper.MemberMapper;
 import com.vincent.mapper.OrderMapper;
 import com.vincent.mapper.ProductMapper;
@@ -13,6 +15,7 @@ import com.vincent.mapper.ReviewMapper;
 import com.vincent.mapper.SkuMapper;
 import com.vincent.service.DashboardService;
 import com.vincent.vo.AlertVO;
+import com.vincent.vo.DashboardChartVO;
 import com.vincent.vo.DashboardOverviewVO;
 import com.vincent.vo.DashboardVO;
 import com.vincent.vo.OrderStatVO;
@@ -40,6 +43,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final ProductMapper productMapper;
     private final ReviewMapper reviewMapper;
     private final SkuMapper skuMapper;
+    private final CategoryMapper categoryMapper;
 
     @Override
     public DashboardVO stats() {
@@ -207,5 +211,88 @@ public class DashboardServiceImpl implements DashboardService {
         overview.setAlerts(alerts());
         log.info("Management dashboard overview query completed");
         return overview;
+    }
+
+    @Override
+    public DashboardChartVO charts() {
+        DashboardChartVO chart = new DashboardChartVO();
+
+        // 1. Order status distribution
+        List<Orders> allOrders = orderMapper.selectList(
+                new LambdaQueryWrapper<Orders>().ne(Orders::getStatus, 5)
+        );
+        Map<Integer, Long> statusCounts = allOrders.stream()
+                .collect(Collectors.groupingBy(Orders::getStatus, Collectors.counting()));
+        List<DashboardChartVO.ChartItem> statusStats = new ArrayList<>();
+        statusStats.add(new DashboardChartVO.ChartItem("Pending Payment", statusCounts.getOrDefault(0, 0L)));
+        statusStats.add(new DashboardChartVO.ChartItem("Pending", statusCounts.getOrDefault(1, 0L)));
+        statusStats.add(new DashboardChartVO.ChartItem("Preparing", statusCounts.getOrDefault(2, 0L)));
+        statusStats.add(new DashboardChartVO.ChartItem("Completed", statusCounts.getOrDefault(3, 0L)));
+        statusStats.add(new DashboardChartVO.ChartItem("Cancelled", statusCounts.getOrDefault(4, 0L)));
+        chart.setOrderStatusStats(statusStats);
+
+        // 2. Order type distribution
+        Map<Integer, Long> typeCounts = allOrders.stream()
+                .collect(Collectors.groupingBy(Orders::getType, Collectors.counting()));
+        List<DashboardChartVO.ChartItem> typeStats = new ArrayList<>();
+        typeStats.add(new DashboardChartVO.ChartItem("Dine-in", typeCounts.getOrDefault(0, 0L)));
+        typeStats.add(new DashboardChartVO.ChartItem("Takeout", typeCounts.getOrDefault(1, 0L)));
+        chart.setOrderTypeStats(typeStats);
+
+        // 3. Category distribution
+        List<Product> allProducts = productMapper.selectList(
+                new LambdaQueryWrapper<Product>().eq(Product::getStatus, 1)
+        );
+        Map<Long, Long> categoryCounts = allProducts.stream()
+                .collect(Collectors.groupingBy(Product::getCategoryId, Collectors.counting()));
+
+        List<Category> categories = categoryMapper.selectList(null);
+        Map<Long, String> categoryNames = categories.stream()
+                .collect(Collectors.toMap(Category::getId, Category::getName));
+
+        List<DashboardChartVO.CategoryStat> categoryStats = new ArrayList<>();
+        categoryCounts.forEach((catId, count) -> {
+            String name = categoryNames.getOrDefault(catId, "Unknown");
+            categoryStats.add(new DashboardChartVO.CategoryStat(name, count));
+        });
+        chart.setCategoryStats(categoryStats);
+
+        // 4. Monthly trend (last 6 months)
+        LocalDate now = LocalDate.now();
+        List<OrderStatVO> monthlyTrend = new ArrayList<>();
+        for (int i = 5; i >= 0; i--) {
+            LocalDate monthStart = now.minusMonths(i).withDayOfMonth(1);
+            LocalDate monthEnd = monthStart.plusMonths(1).minusDays(1);
+
+            LocalDateTime monthStartTime = monthStart.atStartOfDay();
+            LocalDateTime monthEndTime = monthEnd.atTime(LocalTime.MAX);
+
+            Long orderCount = orderMapper.selectCount(
+                    new LambdaQueryWrapper<Orders>()
+                            .ge(Orders::getCreatedAt, monthStartTime)
+                            .le(Orders::getCreatedAt, monthEndTime)
+                            .ne(Orders::getStatus, 5)
+            );
+
+            List<Orders> completedInMonth = orderMapper.selectList(
+                    new LambdaQueryWrapper<Orders>()
+                            .ge(Orders::getCreatedAt, monthStartTime)
+                            .le(Orders::getCreatedAt, monthEndTime)
+                            .eq(Orders::getStatus, 3)
+            );
+            BigDecimal revenue = completedInMonth.stream()
+                    .map(Orders::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            OrderStatVO stat = new OrderStatVO();
+            stat.setDate(monthStart.toString());
+            stat.setOrderCount(orderCount);
+            stat.setRevenue(revenue);
+            monthlyTrend.add(stat);
+        }
+        chart.setMonthlyTrend(monthlyTrend);
+
+        log.info("Dashboard charts query completed");
+        return chart;
     }
 }

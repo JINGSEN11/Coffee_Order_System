@@ -11,6 +11,8 @@ import java.util.List;
 
 public interface ProductService extends IService<Product> {
 
+    List<ProductVO> listAll();
+
     PageVO<ProductVO> pageQuery(String name, Long categoryId, Integer status, Integer page, Integer pageSize);
 
     ProductVO getProductDetail(Long id);

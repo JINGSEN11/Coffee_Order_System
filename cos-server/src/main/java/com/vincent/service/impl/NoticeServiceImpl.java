@@ -29,6 +29,18 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
     private final NoticeMapper noticeMapper;
 
     @Override
+    public List<NoticeVO> listAll() {
+        List<Notice> list = noticeMapper.selectList(
+                new LambdaQueryWrapper<Notice>().orderByDesc(Notice::getCreatedAt)
+        );
+        return list.stream().map(notice -> {
+            NoticeVO vo = new NoticeVO();
+            BeanUtils.copyProperties(notice, vo);
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public PageVO<NoticeVO> pageQuery(String title, Integer status, Integer pageNum, Integer pageSize) {
         Page<Notice> page = new Page<>(pageNum, pageSize);
 

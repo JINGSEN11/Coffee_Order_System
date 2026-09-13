@@ -5,6 +5,7 @@ import com.vincent.dto.NoticeCreateDTO;
 import com.vincent.service.NoticeService;
 import com.vincent.vo.NoticeVO;
 import com.vincent.vo.PageVO;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class NoticeController {
 
     private final NoticeService noticeService;
+
+    @GetMapping("/list")
+    public Result<List<NoticeVO>> list() {
+        return Result.success(noticeService.listAll());
+    }
 
     @GetMapping("/page")
     public Result<PageVO<NoticeVO>> page(

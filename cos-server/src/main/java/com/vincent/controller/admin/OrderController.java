@@ -3,8 +3,11 @@ package com.vincent.controller.admin;
 import com.vincent.common.Result;
 import com.vincent.dto.OrderQueryDTO;
 import com.vincent.service.OrderService;
+import com.vincent.vo.OrderBoardVO;
 import com.vincent.vo.OrderVO;
 import com.vincent.vo.PageVO;
+
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,22 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
     private final OrderService orderService;
+
+    /**
+     * 订单看板数据
+     */
+    @GetMapping("/board")
+    public Result<OrderBoardVO> board() {
+        return Result.success(orderService.board());
+    }
+
+    /**
+     * 订单池（待处理/制作中的订单列表）
+     */
+    @GetMapping("/pool")
+    public Result<List<OrderVO>> pool() {
+        return Result.success(orderService.pool());
+    }
 
     /**
      * 订单详情

@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface MenuService extends IService<Menu> {
 
+    List<MenuVO> listAll();
+
     List<MenuVO> tree();
 
     void createMenu(Menu menu);

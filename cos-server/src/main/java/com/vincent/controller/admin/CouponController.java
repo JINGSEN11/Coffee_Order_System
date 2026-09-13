@@ -20,6 +20,11 @@ public class CouponController {
 
     private final CouponService couponService;
 
+    @GetMapping("/list")
+    public Result<List<CouponVO>> list() {
+        return Result.success(couponService.listAll());
+    }
+
     @GetMapping("/page")
     public Result<PageVO<CouponVO>> page(
             @RequestParam(required = false) String name,

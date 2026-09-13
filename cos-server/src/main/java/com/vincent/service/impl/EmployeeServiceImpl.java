@@ -35,6 +35,14 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
     private final ShopMapper shopMapper;
 
     @Override
+    public List<EmployeeVO> listAll() {
+        List<Employee> list = employeeMapper.selectList(
+                new LambdaQueryWrapper<Employee>().orderByDesc(Employee::getCreatedAt)
+        );
+        return list.stream().map(this::convertToVO).collect(Collectors.toList());
+    }
+
+    @Override
     public PageVO<EmployeeVO> pageQuery(String keyword, Long roleId, Long shopId, Integer pageNum, Integer pageSize) {
         Page<Employee> page = new Page<>(pageNum, pageSize);
 

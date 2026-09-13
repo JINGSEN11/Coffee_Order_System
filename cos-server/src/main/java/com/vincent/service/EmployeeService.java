@@ -5,8 +5,11 @@ import com.vincent.dto.EmployeeCreateDTO;
 import com.vincent.entity.Employee;
 import com.vincent.vo.EmployeeVO;
 import com.vincent.vo.PageVO;
+import java.util.List;
 
 public interface EmployeeService extends IService<Employee> {
+
+    List<EmployeeVO> listAll();
 
     PageVO<EmployeeVO> pageQuery(String keyword, Long roleId, Long shopId, Integer page, Integer pageSize);
 

@@ -37,6 +37,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     private final CategoryMapper categoryMapper;
 
     @Override
+    public List<ProductVO> listAll() {
+        List<Product> list = productMapper.selectList(
+                new LambdaQueryWrapper<Product>().orderByDesc(Product::getCreatedAt)
+        );
+        return list.stream().map(this::convertToVO).collect(Collectors.toList());
+    }
+
+    @Override
     public PageVO<ProductVO> pageQuery(String name, Long categoryId, Integer status, Integer pageNum, Integer pageSize) {
         Page<Product> page = new Page<>(pageNum, pageSize);
 

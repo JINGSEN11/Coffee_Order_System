@@ -19,6 +19,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 // 放行以下路径（不需要登录即可访问）
                 .excludePathPatterns(
+                        "/admin/login",           // 兼容前端旧路径
                         "/admin/auth/login",      // 管理员登录
                         "/admin/auth/refresh",    // 管理员 token 刷新
                         "/user/login",            // 用户端登录

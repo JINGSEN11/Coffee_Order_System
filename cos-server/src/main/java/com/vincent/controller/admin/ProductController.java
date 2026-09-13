@@ -20,6 +20,11 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @GetMapping("/list")
+    public Result<List<ProductVO>> list() {
+        return Result.success(productService.listAll());
+    }
+
     @GetMapping("/page")
     public Result<PageVO<ProductVO>> page(
             @RequestParam(required = false) String name,

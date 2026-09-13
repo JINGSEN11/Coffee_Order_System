@@ -3,6 +3,7 @@ package com.vincent.controller.admin;
 import com.vincent.common.Result;
 import com.vincent.service.DashboardService;
 import com.vincent.vo.AlertVO;
+import com.vincent.vo.DashboardChartVO;
 import com.vincent.vo.DashboardOverviewVO;
 import com.vincent.vo.DashboardVO;
 import com.vincent.vo.OrderStatVO;
@@ -52,6 +53,12 @@ public class DashboardController {
     public Result<DashboardOverviewVO> overview() {
         log.info("管理端查询数据看板总览");
         return Result.success(dashboardService.overview());
+    }
+
+    @GetMapping("/charts")
+    public Result<DashboardChartVO> charts() {
+        log.info("管理端查询数据看板图表");
+        return Result.success(dashboardService.charts());
     }
 
 }

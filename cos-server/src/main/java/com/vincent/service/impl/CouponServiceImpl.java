@@ -33,6 +33,18 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
     private final UserCouponMapper userCouponMapper;
 
     @Override
+    public List<CouponVO> listAll() {
+        List<Coupon> list = couponMapper.selectList(
+                new LambdaQueryWrapper<Coupon>().orderByDesc(Coupon::getCreatedAt)
+        );
+        return list.stream().map(coupon -> {
+            CouponVO vo = new CouponVO();
+            BeanUtils.copyProperties(coupon, vo);
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
     public PageVO<CouponVO> pageQuery(String name, Integer status, Integer pageNum, Integer pageSize) {
         Page<Coupon> page = new Page<>(pageNum, pageSize);
 

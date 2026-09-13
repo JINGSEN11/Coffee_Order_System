@@ -11,6 +11,8 @@ import java.util.List;
 
 public interface CouponService extends IService<Coupon> {
 
+    List<CouponVO> listAll();
+
     PageVO<CouponVO> pageQuery(String name, Integer status, Integer page, Integer pageSize);
 
     CouponVO getCouponDetail(Long id);

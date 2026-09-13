@@ -6,7 +6,11 @@ import com.vincent.entity.Notice;
 import com.vincent.vo.NoticeVO;
 import com.vincent.vo.PageVO;
 
+import java.util.List;
+
 public interface NoticeService extends IService<Notice> {
+
+    List<NoticeVO> listAll();
 
     PageVO<NoticeVO> pageQuery(String title, Integer status, Integer page, Integer pageSize);
 
