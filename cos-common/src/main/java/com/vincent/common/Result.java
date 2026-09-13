@@ -9,18 +9,19 @@ import lombok.Data;
 public class Result<T> {
 
     private Integer code;
-    private String msg;
+    private String message;
     private T data;
 
-    private static final Integer SUCCESS_CODE = 200;
+    /** 与前端管理端（src/api/request.js）约定：code=0 为成功，非 0 一律按失败处理 */
+    private static final Integer SUCCESS_CODE = 0;
     private static final Integer ERROR_CODE = 500;
 
     public Result() {
     }
 
-    public Result(Integer code, String msg, T data) {
+    public Result(Integer code, String message, T data) {
         this.code = code;
-        this.msg = msg;
+        this.message = message;
         this.data = data;
     }
 
@@ -32,20 +33,20 @@ public class Result<T> {
         return new Result<>(SUCCESS_CODE, "操作成功", data);
     }
 
-    public static <T> Result<T> success(String msg, T data) {
-        return new Result<>(SUCCESS_CODE, msg, data);
+    public static <T> Result<T> success(String message, T data) {
+        return new Result<>(SUCCESS_CODE, message, data);
     }
 
     public static <T> Result<T> error() {
         return new Result<>(ERROR_CODE, "操作失败", null);
     }
 
-    public static <T> Result<T> error(String msg) {
-        return new Result<>(ERROR_CODE, msg, null);
+    public static <T> Result<T> error(String message) {
+        return new Result<>(ERROR_CODE, message, null);
     }
 
-    public static <T> Result<T> error(Integer code, String msg) {
-        return new Result<>(code, msg, null);
+    public static <T> Result<T> error(Integer code, String message) {
+        return new Result<>(code, message, null);
     }
 
 }

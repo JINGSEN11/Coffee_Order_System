@@ -20,33 +20,49 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 1. 尝试从请求头获取管理员 token
-        String token = request.getHeader(jwtProperties.getAdminTokenName());
-        String secretKey = jwtProperties.getAdminSecretKey();
+        String token = resolveToken(request);
 
-        // 2. 如果没有管理员 token，则尝试用户端 token
-        if (token == null || token.isEmpty()) {
-            token = request.getHeader(jwtProperties.getUserTokenName());
-            secretKey = jwtProperties.getUserSecretKey();
-        }
-
-        // 3. 两个 token 都不存在 → 未登录
         if (token == null || token.isEmpty()) {
             log.warn("请求未携带令牌，URI: {}", request.getRequestURI());
             return unauthorized(response, "未登录，请先登录");
         }
 
-        // 4. 校验 token
-        try {
-            Claims claims = JwtUtil.parseToken(secretKey, token);
-            Long userId = claims.get("id", Long.class);
-            log.info("用户 {} 通过令牌验证", userId);
-            BaseContext.setCurrentId(userId);
-            return true;
-        } catch (Exception e) {
-            log.warn("令牌无效或已过期: {}", e.getMessage());
-            return unauthorized(response, "登录已过期，请重新登录");
+        // 管理员密钥 / 用户端密钥依次尝试，任一校验通过即放行
+        String[] secrets = {jwtProperties.getAdminSecretKey(), jwtProperties.getUserSecretKey()};
+        for (String secret : secrets) {
+            try {
+                Claims claims = JwtUtil.parseToken(secret, token);
+                Object idObj = claims.get("id");
+                Long userId = idObj == null ? null : Long.valueOf(String.valueOf(idObj));
+                log.info("用户 {} 通过令牌验证", userId);
+                BaseContext.setCurrentId(userId);
+                return true;
+            } catch (Exception ignored) {
+                // 换下一个密钥重试
+            }
         }
+
+        log.warn("令牌无效或已过期，URI: {}", request.getRequestURI());
+        return unauthorized(response, "登录已过期，请重新登录");
+    }
+
+    /**
+     * 解析请求中的令牌。优先取标准 Authorization: Bearer 头（前端 axios 默认携带），
+     * 其次兼容 admin-token-name / user-token-name 指定的自定义头。
+     */
+    private String resolveToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.regionMatches(true, 0, "Bearer ", 0, 7)) {
+            String t = authHeader.substring(7).trim();
+            if (!t.isEmpty()) {
+                return t;
+            }
+        }
+        String token = request.getHeader(jwtProperties.getAdminTokenName());
+        if (token == null || token.isEmpty()) {
+            token = request.getHeader(jwtProperties.getUserTokenName());
+        }
+        return token;
     }
 
     @Override
@@ -56,12 +72,12 @@ public class LoginInterceptor implements HandlerInterceptor {
     }
 
     /**
-     * 返回 401 未授权响应
+     * 返回 401 未授权响应（字段名与前端 request.js 约定一致：code / message）
      */
-    private boolean unauthorized(HttpServletResponse response, String msg) throws Exception {
+    private boolean unauthorized(HttpServletResponse response, String message) throws Exception {
         response.setStatus(401);
         response.setContentType("application/json;charset=utf-8");
-        response.getWriter().write("{\"code\":401,\"msg\":\"" + msg + "\",\"data\":null}");
+        response.getWriter().write("{\"code\":401,\"message\":\"" + message + "\",\"data\":null}");
         return false;
     }
 

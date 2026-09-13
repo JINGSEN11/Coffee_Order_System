@@ -19,7 +19,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 // 放行以下路径（不需要登录即可访问）
                 .excludePathPatterns(
-                        "/admin/login",           // 管理员登录
+                        "/admin/auth/login",      // 管理员登录
+                        "/admin/auth/refresh",    // 管理员 token 刷新
                         "/user/login",            // 用户端登录
                         "/user/register",         // 用户注册
                         "/doc.html",              // Knife4j 接口文档

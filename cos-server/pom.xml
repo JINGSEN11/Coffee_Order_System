@@ -39,6 +39,12 @@
             <artifactId>mybatis-plus-extension</artifactId>
             <version>3.5.17</version>
         </dependency>
+        <!-- 密码校验：BCrypt（自包含，无传递依赖，避免与 Spring Boot 4 的 spring-core 版本耦合） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.27</version>
+        </dependency>
     </dependencies>
 
     <artifactId>cos-server</artifactId>

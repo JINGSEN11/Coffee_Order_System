@@ -2,6 +2,7 @@ package com.vincent.controller.admin;
 
 import com.vincent.common.Result;
 import com.vincent.service.DashboardService;
+import com.vincent.vo.AlertVO;
 import com.vincent.vo.DashboardVO;
 import com.vincent.vo.OrderStatVO;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,12 @@ public class DashboardController {
         LocalDate start = startDate != null ? LocalDate.parse(startDate) : end.minusDays(6);
 
         return Result.success(dashboardService.trend(start, end));
+    }
+
+    @GetMapping("/alerts")
+    public Result<List<AlertVO>> alerts() {
+        log.info("管理端查询数据看板告警");
+        return Result.success(dashboardService.alerts());
     }
 
 }

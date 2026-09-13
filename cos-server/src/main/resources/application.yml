@@ -7,11 +7,10 @@ spring:
   main:
     allow-circular-references: true
   datasource:
-    druid:
-      driver-class-name: ${cos.datasource.driver-class-name}
-      url: jdbc:mysql://${cos.datasource.host}:${cos.datasource.port}/${cos.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-      username: ${cos.datasource.username}
-      password: ${cos.datasource.password}
+    driver-class-name: ${cos.datasource.driver-class-name}
+    url: jdbc:mysql://${cos.datasource.host}:${cos.datasource.port}/${cos.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${cos.datasource.username}
+    password: ${cos.datasource.password}
   redis:
     host: ${cos.redis.host}
     port: ${cos.redis.port}
@@ -19,11 +18,14 @@ spring:
   jackson:
     time-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
+    # 管理端前端统一使用下划线字段名（对齐数据库列名，如 real_name / order_no / pickup_code），
+    # 若保持 Jackson 默认驼峰，所有 VO 字段在前端都会取不到值。
+    property-naming-strategy: SNAKE_CASE
 
 mybatis-plus:
   #mapper配置文件
   mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.cos.entity
+  type-aliases-package: com.vincent.entity
   configuration:
     #开启驼峰命名
     map-underscore-to-camel-case: true
@@ -31,20 +33,20 @@ mybatis-plus:
 logging:
   level:
     com:
-      cos:
+      vincent:
         mapper: debug
         service: info
         controller: info
 
 cos:
   jwt:
-    # 设置jwt签名加密时使用的秘钥
-    admin-secret-key: itcast
+    # 设置jwt签名加密时使用的秘钥（JJWT 0.12.5 要求 HMAC 密钥 >= 256 bits / 32 字节）
+    admin-secret-key: itcast-admin-jwt-secret-key-20260913-vincent-001
     # 设置jwt过期时间
     admin-ttl: 7200000
     # 设置前端传递过来的令牌名称
     admin-token-name: token
-    user-secret-key: jingsen
+    user-secret-key: jingsen-user-jwt-secret-key-20260913-vincent-001
     user-ttl: 7200000
     user-token-name: authentication
   alioss:
