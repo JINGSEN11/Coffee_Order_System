@@ -14,6 +14,9 @@ public class TableQr {
     private Long id;
     private Long shopId;
     private String tableNo;
+    private String area;
+    private Integer seats;
+    private Integer status;
     private String qrUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

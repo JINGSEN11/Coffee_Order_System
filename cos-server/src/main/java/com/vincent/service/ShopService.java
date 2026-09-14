@@ -12,9 +12,19 @@ public interface ShopService extends IService<Shop> {
 
     ShopVO getShopDetail(Long id);
 
+    /**
+     * 获取门店信息（当前默认门店）
+     */
+    ShopVO getShopInfo();
+
     void createShop(ShopCreateDTO dto);
 
     void updateShop(Long id, ShopCreateDTO dto);
+
+    /**
+     * 更新门店信息（当前默认门店）
+     */
+    void updateShopInfo(ShopCreateDTO dto);
 
     void deleteShop(Long id);
 

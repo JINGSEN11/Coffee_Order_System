@@ -10,6 +10,9 @@ public class TableQrVO {
     private Long shopId;
     private String shopName;
     private String tableNo;
+    private String area;
+    private Integer seats;
+    private Integer status;
     private String qrUrl;
     private LocalDateTime createdAt;
 }

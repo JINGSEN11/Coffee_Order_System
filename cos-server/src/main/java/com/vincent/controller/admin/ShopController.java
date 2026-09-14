@@ -26,6 +26,19 @@ public class ShopController {
         return Result.success(shopService.pageQuery(name, status, page, pageSize));
     }
 
+    @GetMapping("/info")
+    public Result<ShopVO> info() {
+        log.info("管理端查询门店信息");
+        return Result.success(shopService.getShopInfo());
+    }
+
+    @PutMapping("/info")
+    public Result<Void> updateInfo(@RequestBody ShopCreateDTO dto) {
+        log.info("管理端更新门店信息");
+        shopService.updateShopInfo(dto);
+        return Result.success();
+    }
+
     @GetMapping("/{id}")
     public Result<ShopVO> detail(@PathVariable Long id) {
         return Result.success(shopService.getShopDetail(id));

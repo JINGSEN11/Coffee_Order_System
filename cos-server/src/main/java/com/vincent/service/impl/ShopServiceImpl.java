@@ -58,6 +58,45 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements Sh
     }
 
     @Override
+    public ShopVO getShopInfo() {
+        // 获取第一条门店记录作为当前门店
+        Shop shop = shopMapper.selectOne(
+                new LambdaQueryWrapper<Shop>().orderByAsc(Shop::getId).last("LIMIT 1")
+        );
+        if (shop == null) {
+            // 没有门店记录时返回空 VO（前端可以新建）
+            return new ShopVO();
+        }
+        ShopVO vo = new ShopVO();
+        BeanUtils.copyProperties(shop, vo);
+        log.info("查询默认门店信息：id={}, name={}", shop.getId(), shop.getName());
+        return vo;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateShopInfo(ShopCreateDTO dto) {
+        // 获取第一条门店记录
+        Shop shop = shopMapper.selectOne(
+                new LambdaQueryWrapper<Shop>().orderByAsc(Shop::getId).last("LIMIT 1")
+        );
+        if (shop == null) {
+            // 没有门店则新增
+            shop = new Shop();
+            BeanUtils.copyProperties(dto, shop);
+            shop.setCreatedAt(LocalDateTime.now());
+            shop.setUpdatedAt(LocalDateTime.now());
+            save(shop);
+            log.info("创建默认门店：name={}", shop.getName());
+        } else {
+            BeanUtils.copyProperties(dto, shop);
+            shop.setUpdatedAt(LocalDateTime.now());
+            updateById(shop);
+            log.info("更新默认门店：id={}, name={}", shop.getId(), shop.getName());
+        }
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void createShop(ShopCreateDTO dto) {
         Shop shop = new Shop();
