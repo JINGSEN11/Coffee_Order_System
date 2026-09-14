@@ -10,9 +10,14 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.ext.javatime.deser.LocalDateTimeDeserializer;
+import tools.jackson.databind.ext.javatime.ser.LocalDateTimeSerializer;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
 
 /**
@@ -39,6 +44,20 @@ public class JacksonNamingConfig implements WebMvcConfigurer {
     /** 管理端请求前缀，命中即使用驼峰命名 */
     private static final String ADMIN_PATH_PREFIX = "/admin";
 
+    /** 管理端 LocalDateTime 的输出格式，与 application.yml 里 time-format 的意图一致 */
+    private static final DateTimeFormatter DATE_TIME_OUT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    /**
+     * 入参格式：同时接受 "yyyy-MM-dd HH:mm:ss" 和 ISO 的 "yyyy-MM-ddTHH:mm:ss"，
+     * 避免历史调用方（Postman 集合等）在格式切换后连不上。
+     */
+    private static final DateTimeFormatter DATE_TIME_IN = new DateTimeFormatterBuilder()
+            .appendPattern("yyyy-MM-dd")
+            .optionalStart().appendLiteral('T').optionalEnd()
+            .optionalStart().appendLiteral(' ').optionalEnd()
+            .appendPattern("HH:mm:ss")
+            .toFormatter();
+
     private static boolean isAdminRequest() {
         if (!(RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attrs)) {
             return false;
@@ -58,6 +77,20 @@ public class JacksonNamingConfig implements WebMvcConfigurer {
         }
     }
 
+    /**
+     * application.yml 里的 spring.jackson.time-format 其实不是 Spring Boot 的有效属性
+     * （有效的是 date-format，且只作用于 java.util.Date），所以 LocalDateTime 一直在用
+     * Jackson 默认的 ISO 格式输出，客户端按 "yyyy-MM-dd HH:mm:ss" 提交时会报
+     * DateTimeParseException（例如新增优惠券带有效期必 500）。
+     * 这里显式给管理端注册 JavaTime 的读写格式。
+     */
+    private static SimpleModule localDateTimeModule() {
+        SimpleModule module = new SimpleModule("admin-local-date-time");
+        module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DATE_TIME_OUT));
+        module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DATE_TIME_IN));
+        return module;
+    }
+
     /** 只接管 /admin/** 的 Jackson 转换器，命名策略为驼峰 */
     private static final class AdminCamelCaseConverter extends JacksonJsonHttpMessageConverter {
 
@@ -75,6 +108,7 @@ public class JacksonNamingConfig implements WebMvcConfigurer {
             }
             JsonMapper camelCaseMapper = source.getMapper().<JsonMapper, JsonMapper.Builder>rebuild()
                     .propertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE)
+                    .addModule(localDateTimeModule())
                     .build();
 
             AdminCamelCaseConverter scoped = new AdminCamelCaseConverter(camelCaseMapper);
