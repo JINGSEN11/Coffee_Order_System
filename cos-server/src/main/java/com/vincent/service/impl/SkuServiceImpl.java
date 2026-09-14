@@ -22,6 +22,8 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,13 +44,7 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku> implements SkuSe
 
         Page<Sku> result = page(page, wrapper);
 
-        List<SkuVO> voList = result.getRecords().stream().map(sku -> {
-            SkuVO vo = new SkuVO();
-            BeanUtils.copyProperties(sku, vo);
-            return vo;
-        }).collect(Collectors.toList());
-
-        return new PageVO<>(result.getTotal(), pageNum, pageSize, voList);
+        return new PageVO<>(result.getTotal(), pageNum, pageSize, toVoList(result.getRecords()));
     }
 
     @Override
@@ -75,13 +71,7 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku> implements SkuSe
 
         Page<Sku> result = page(page, wrapper);
 
-        List<SkuVO> voList = result.getRecords().stream().map(sku -> {
-            SkuVO vo = new SkuVO();
-            BeanUtils.copyProperties(sku, vo);
-            return vo;
-        }).collect(Collectors.toList());
-
-        return new PageVO<>(result.getTotal(), dto.getPage(), dto.getPageSize(), voList);
+        return new PageVO<>(result.getTotal(), dto.getPage(), dto.getPageSize(), toVoList(result.getRecords()));
     }
 
     @Override
@@ -90,9 +80,34 @@ public class SkuServiceImpl extends ServiceImpl<SkuMapper, Sku> implements SkuSe
         if (sku == null) {
             throw new ServiceException("SKU不存在");
         }
-        SkuVO vo = new SkuVO();
-        BeanUtils.copyProperties(sku, vo);
-        return vo;
+        return toVoList(List.of(sku)).get(0);
+    }
+
+    /**
+     * 转 VO 并补上所属商品名。按商品 id 批量取名称，避免逐行查库（N+1）。
+     */
+    private List<SkuVO> toVoList(List<Sku> skus) {
+        if (skus == null || skus.isEmpty()) {
+            return List.of();
+        }
+        List<Long> productIds = skus.stream()
+                .map(Sku::getProductId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<Long, String> nameById = productIds.isEmpty() ? Map.of() : productMapper.selectList(
+                new LambdaQueryWrapper<Product>()
+                        .select(Product::getId, Product::getName)
+                        .in(Product::getId, productIds)
+        ).stream().collect(Collectors.toMap(Product::getId, Product::getName, (a, b) -> a));
+
+        return skus.stream().map(sku -> {
+            SkuVO vo = new SkuVO();
+            BeanUtils.copyProperties(sku, vo);
+            vo.setProductName(nameById.get(sku.getProductId()));
+            return vo;
+        }).collect(Collectors.toList());
     }
 
     @Override
