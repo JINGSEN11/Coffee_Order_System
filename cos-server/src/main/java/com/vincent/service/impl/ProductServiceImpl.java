@@ -23,8 +23,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,6 +96,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 前端 inline 传入的 SKU
         if (dto.getSkus() != null && !dto.getSkus().isEmpty()) {
             batchCreateSku(product.getId(), dto.getSkus());
+        } else if (dto.getPrice() != null) {
+            // 没传 SKU 但填了价格：建一个默认 SKU，否则商品没有任何可售价格
+            insertDefaultSku(product.getId(), dto.getPrice(), dto.getStock());
         }
         return product.getId();
     }
@@ -109,7 +116,52 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 前端 inline 传入的 SKU（全量覆盖）
         if (dto.getSkus() != null && !dto.getSkus().isEmpty()) {
             batchCreateSku(id, dto.getSkus());
+        } else {
+            applyProductLevelPrice(id, dto);
         }
+    }
+
+    /**
+     * 商品级 price/stock 的落库规则：
+     * - 0 个 SKU：建一个默认 SKU，把价格/库存放进去；
+     * - 1 个 SKU：直接更新这个 SKU（单规格商品的正常路径）；
+     * - 多个 SKU：不动。多规格商品由 SKU 矩阵定价，商品表单里的单一价格没有意义
+     *   （管理端此时会把价格/库存置为只读，不会发上来）。
+     */
+    private void applyProductLevelPrice(Long productId, ProductCreateDTO dto) {
+        if (dto.getPrice() == null && dto.getStock() == null) return;
+
+        List<Sku> skus = skuMapper.selectList(
+                new LambdaQueryWrapper<Sku>().eq(Sku::getProductId, productId).orderByAsc(Sku::getId)
+        );
+        if (skus.size() > 1) {
+            log.debug("商品 {} 有 {} 个 SKU，按 SKU 矩阵定价，忽略商品级 price/stock",
+                    productId, skus.size());
+            return;
+        }
+        if (skus.size() == 1) {
+            Sku sku = skus.get(0);
+            if (dto.getPrice() != null) sku.setPrice(dto.getPrice());
+            if (dto.getStock() != null) sku.setStock(dto.getStock());
+            sku.setUpdatedAt(LocalDateTime.now());
+            skuMapper.updateById(sku);
+            return;
+        }
+        if (dto.getPrice() != null) {
+            insertDefaultSku(productId, dto.getPrice(), dto.getStock());
+        }
+    }
+
+    private void insertDefaultSku(Long productId, BigDecimal price, Integer stock) {
+        Sku sku = new Sku();
+        sku.setProductId(productId);
+        sku.setSpecsJson("{}");
+        sku.setPrice(price);
+        sku.setStock(stock != null ? stock : 0);
+        sku.setWarnStock(0);
+        sku.setCreatedAt(LocalDateTime.now());
+        sku.setUpdatedAt(LocalDateTime.now());
+        skuMapper.insert(sku);
     }
 
     @Override
