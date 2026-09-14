@@ -202,8 +202,44 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void batchUpdateSku(Long productId, List<SkuCreateDTO> skuList) {
-        // 全量覆盖：删旧插新
-        batchCreateSku(productId, skuList);
+        // 按 id 增量更新：带 id 的改、不带的插、列表里没出现的才删。
+        // 原来是直接调 batchCreateSku「删旧插新」，SKU 主键会全部变化，
+        // 历史 order_item.sku_id / cart_item.sku_id 立刻指向不存在的 SKU。
+        List<Sku> existing = skuMapper.selectList(
+                new LambdaQueryWrapper<Sku>().eq(Sku::getProductId, productId).orderByAsc(Sku::getId)
+        );
+        Map<Long, Sku> existingById = existing.stream()
+                .collect(Collectors.toMap(Sku::getId, Function.identity()));
+
+        List<Long> keptIds = new ArrayList<>();
+        for (SkuCreateDTO dto : skuList) {
+            Sku sku = dto.getId() != null ? existingById.get(dto.getId()) : null;
+            if (sku != null) {
+                if (dto.getSpecsJson() != null) sku.setSpecsJson(dto.getSpecsJson());
+                if (dto.getPrice() != null) sku.setPrice(dto.getPrice());
+                if (dto.getStock() != null) sku.setStock(dto.getStock());
+                if (dto.getWarnStock() != null) sku.setWarnStock(dto.getWarnStock());
+                sku.setUpdatedAt(LocalDateTime.now());
+                skuMapper.updateById(sku);
+            } else {
+                sku = new Sku();
+                BeanUtils.copyProperties(dto, sku);
+                sku.setId(null);
+                sku.setProductId(productId);
+                sku.setCreatedAt(LocalDateTime.now());
+                sku.setUpdatedAt(LocalDateTime.now());
+                skuMapper.insert(sku);
+            }
+            keptIds.add(sku.getId());
+        }
+
+        List<Long> removedIds = existing.stream()
+                .map(Sku::getId)
+                .filter(id -> !keptIds.contains(id))
+                .collect(Collectors.toList());
+        if (!removedIds.isEmpty()) {
+            skuMapper.deleteByIds(removedIds);
+        }
     }
 
     private ProductVO convertToVO(Product product) {
