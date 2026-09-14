@@ -17,11 +17,13 @@ public interface ProductService extends IService<Product> {
 
     ProductVO getProductDetail(Long id);
 
-    void createProduct(ProductCreateDTO dto);
+    Long createProduct(ProductCreateDTO dto);
 
     void updateProduct(Long id, ProductCreateDTO dto);
 
     void deleteProduct(Long id);
+
+    void setStatus(Long id, Integer status);
 
     void batchCreateSku(Long productId, List<SkuCreateDTO> skuList);
 

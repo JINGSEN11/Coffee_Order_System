@@ -81,7 +81,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void createProduct(ProductCreateDTO dto) {
+    public Long createProduct(ProductCreateDTO dto) {
         Product product = new Product();
         BeanUtils.copyProperties(dto, product);
         product.setSales(0);
@@ -93,6 +93,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         if (dto.getSkus() != null && !dto.getSkus().isEmpty()) {
             batchCreateSku(product.getId(), dto.getSkus());
         }
+        return product.getId();
     }
 
     @Override
@@ -118,6 +119,16 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         // 同时删除关联SKU
         skuMapper.delete(new LambdaQueryWrapper<Sku>().eq(Sku::getProductId, id));
         removeById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void setStatus(Long id, Integer status) {
+        Product product = getById(id);
+        if (product == null) throw new ServiceException("商品不存在");
+        product.setStatus(status);
+        product.setUpdatedAt(LocalDateTime.now());
+        updateById(product);
     }
 
     @Override

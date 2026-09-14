@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController("adminProductController")
 @RequestMapping("/admin/product")
@@ -42,9 +44,9 @@ public class ProductController {
     }
 
     @PostMapping
-    public Result<Void> create(@RequestBody ProductCreateDTO dto) {
-        productService.createProduct(dto);
-        return Result.success();
+    public Result<Map<String, Long>> create(@RequestBody ProductCreateDTO dto) {
+        Long id = productService.createProduct(dto);
+        return Result.success(Collections.singletonMap("id", id));
     }
 
     @PutMapping("/{id}")
@@ -56,6 +58,12 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         productService.deleteProduct(id);
+        return Result.success();
+    }
+
+    @PutMapping("/{id}/status")
+    public Result<Void> setStatus(@PathVariable Long id, @RequestBody Map<String, Integer> body) {
+        productService.setStatus(id, body.getOrDefault("status", 0));
         return Result.success();
     }
 
