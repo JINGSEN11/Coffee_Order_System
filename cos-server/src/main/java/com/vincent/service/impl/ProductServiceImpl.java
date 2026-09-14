@@ -178,6 +178,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         if (skuList.isEmpty()) {
             vo.setMinPrice(null);
             vo.setMaxPrice(null);
+            vo.setPrice(null);
             vo.setStock(0);
             vo.setLowStock(false);
         } else {
@@ -196,6 +197,8 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             }
             vo.setMinPrice(min);
             vo.setMaxPrice(max);
+            // 管理端商品列表/编辑页读的是 price（起售价），与 minPrice 保持一致
+            vo.setPrice(min);
             vo.setStock(totalStock);
             vo.setLowStock(low);
         }

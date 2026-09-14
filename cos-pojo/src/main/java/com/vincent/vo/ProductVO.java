@@ -21,6 +21,8 @@ public class ProductVO {
     private List<SkuVO> skus;
     private java.math.BigDecimal minPrice;
     private java.math.BigDecimal maxPrice;
+    /** 最低售价，供管理端列表 / 编辑页直接展示（等同 minPrice，无 SKU 时为 null） */
+    private java.math.BigDecimal price;
     private Integer skuCount;
     private Integer stock;
     private Boolean lowStock;
