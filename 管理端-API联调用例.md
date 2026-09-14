@@ -906,10 +906,12 @@
 ### 20.2 入库操作
 
 - **URL**：`POST /stock/in`
+- **说明**：库存、售价、预警值都挂在 **SKU** 上（规格矩阵商品下有多个 SKU，各自库存独立），
+  所以入参是 `skuId`；`PUT /sku/{id}` 同样用于按 SKU 改价
 
 ```json
 {
-    "productId": 1,
+    "skuId": 388,
     "quantity": 50
 }
 ```
