@@ -8,6 +8,7 @@ import com.vincent.vo.PageVO;
 import com.vincent.vo.ProductVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -29,13 +30,17 @@ public class ProductController {
 
     @GetMapping("/page")
     public Result<PageVO<ProductVO>> page(
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Integer status,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) String lowStock) {
-        return Result.success(productService.pageQuery(keyword, categoryId, status, lowStock, page, pageSize));
+        // 管理端契约（管理端-API联调用例 15.2）与 admin-web 搜索框都用 name，
+        // keyword 作为历史写法保留兼容。
+        String searchName = StringUtils.hasText(name) ? name : keyword;
+        return Result.success(productService.pageQuery(searchName, categoryId, status, lowStock, page, pageSize));
     }
 
     @GetMapping("/{id}")

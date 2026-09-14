@@ -13,7 +13,7 @@ public interface ProductService extends IService<Product> {
 
     List<ProductVO> listAll();
 
-    PageVO<ProductVO> pageQuery(String keyword, Long categoryId, Integer status, String lowStock, Integer page, Integer pageSize);
+    PageVO<ProductVO> pageQuery(String name, Long categoryId, Integer status, String lowStock, Integer page, Integer pageSize);
 
     ProductVO getProductDetail(Long id);
 

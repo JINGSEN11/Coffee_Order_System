@@ -45,11 +45,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     @Override
-    public PageVO<ProductVO> pageQuery(String keyword, Long categoryId, Integer status, String lowStock, Integer pageNum, Integer pageSize) {
+    public PageVO<ProductVO> pageQuery(String name, Long categoryId, Integer status, String lowStock, Integer pageNum, Integer pageSize) {
         Page<Product> page = new Page<>(pageNum, pageSize);
 
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<Product>()
-                .like(StringUtils.hasText(keyword), Product::getName, keyword)
+                .like(StringUtils.hasText(name), Product::getName, name)
                 .eq(categoryId != null, Product::getCategoryId, categoryId)
                 .eq(status != null, Product::getStatus, status)
                 .orderByDesc(Product::getCreatedAt);
