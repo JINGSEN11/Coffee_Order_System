@@ -88,6 +88,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         product.setCreatedAt(LocalDateTime.now());
         product.setUpdatedAt(LocalDateTime.now());
         save(product);
+
+        // 前端 inline 传入的 SKU
+        if (dto.getSkus() != null && !dto.getSkus().isEmpty()) {
+            batchCreateSku(product.getId(), dto.getSkus());
+        }
     }
 
     @Override
@@ -99,6 +104,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         product.setId(id);
         product.setUpdatedAt(LocalDateTime.now());
         updateById(product);
+
+        // 前端 inline 传入的 SKU（全量覆盖）
+        if (dto.getSkus() != null && !dto.getSkus().isEmpty()) {
+            batchCreateSku(id, dto.getSkus());
+        }
     }
 
     @Override
