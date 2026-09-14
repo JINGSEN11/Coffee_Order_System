@@ -17,5 +17,11 @@ public class ProductVO {
     private Integer sales;
     private Integer status;
     private LocalDateTime createdAt;
-    private List<SkuVO> skuList;
+    /** 前端商品列表（List.vue）需要的聚合字段 */
+    private List<SkuVO> skus;
+    private java.math.BigDecimal minPrice;
+    private java.math.BigDecimal maxPrice;
+    private Integer skuCount;
+    private Integer stock;
+    private Boolean lowStock;
 }

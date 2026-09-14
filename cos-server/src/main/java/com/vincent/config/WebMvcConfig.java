@@ -24,6 +24,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/admin/auth/refresh",    // 管理员 token 刷新
                         "/user/login",            // 用户端登录
                         "/user/register",         // 用户注册
+                        "/api/app/auth/login",    // 小程序端微信登录
+                        "/api/app/pay/notify",    // 微信支付回调（由微信服务器调用，走回调验签）
                         "/doc.html",              // Knife4j 接口文档
                         "/swagger-resources/**",  // Swagger 资源
                         "/v3/api-docs/**",        // OpenAPI 文档

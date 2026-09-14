@@ -45,22 +45,31 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     }
 
     @Override
-    public PageVO<ProductVO> pageQuery(String name, Long categoryId, Integer status, Integer pageNum, Integer pageSize) {
+    public PageVO<ProductVO> pageQuery(String keyword, Long categoryId, Integer status, String lowStock, Integer pageNum, Integer pageSize) {
         Page<Product> page = new Page<>(pageNum, pageSize);
 
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<Product>()
-                .like(StringUtils.hasText(name), Product::getName, name)
+                .like(StringUtils.hasText(keyword), Product::getName, keyword)
                 .eq(categoryId != null, Product::getCategoryId, categoryId)
                 .eq(status != null, Product::getStatus, status)
                 .orderByDesc(Product::getCreatedAt);
 
+        // lowStock 筛选：只查询有库存预警的商品，需在内存中进一步过滤
         Page<Product> result = page(page, wrapper);
 
+        // 先转 VO（含聚合计算），再按 lowStock 过滤
         List<ProductVO> voList = result.getRecords().stream()
                 .map(this::convertToVO)
                 .collect(Collectors.toList());
 
-        return new PageVO<>(result.getTotal(), pageNum, pageSize, voList);
+        if ("1".equals(lowStock)) {
+            voList = voList.stream()
+                    .filter(vo -> Boolean.TRUE.equals(vo.getLowStock()))
+                    .collect(Collectors.toList());
+        }
+
+        long total = "1".equals(lowStock) ? voList.size() : result.getTotal();
+        return new PageVO<>(total, pageNum, pageSize, voList);
     }
 
     @Override
@@ -134,7 +143,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             vo.setCategoryName(category.getName());
         }
 
-        // 填充SKU列表
+        // 填充 SKU 列表，并计算聚合字段（管理端列表页所需）
         List<Sku> skuList = skuMapper.selectList(
                 new LambdaQueryWrapper<Sku>().eq(Sku::getProductId, product.getId())
         );
@@ -143,7 +152,32 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
             BeanUtils.copyProperties(sku, skuVO);
             return skuVO;
         }).collect(Collectors.toList());
-        vo.setSkuList(skuVOList);
+        vo.setSkus(skuVOList);
+        vo.setSkuCount(skuList.size());
+        if (skuList.isEmpty()) {
+            vo.setMinPrice(null);
+            vo.setMaxPrice(null);
+            vo.setStock(0);
+            vo.setLowStock(false);
+        } else {
+            java.math.BigDecimal min = skuList.get(0).getPrice();
+            java.math.BigDecimal max = skuList.get(0).getPrice();
+            int totalStock = 0;
+            boolean low = false;
+            for (Sku sku : skuList) {
+                if (sku.getPrice().compareTo(min) < 0) min = sku.getPrice();
+                if (sku.getPrice().compareTo(max) > 0) max = sku.getPrice();
+                totalStock += sku.getStock() != null ? sku.getStock() : 0;
+                if (sku.getWarnStock() != null && sku.getStock() != null
+                        && sku.getStock() <= sku.getWarnStock()) {
+                    low = true;
+                }
+            }
+            vo.setMinPrice(min);
+            vo.setMaxPrice(max);
+            vo.setStock(totalStock);
+            vo.setLowStock(low);
+        }
 
         return vo;
     }

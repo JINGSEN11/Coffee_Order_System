@@ -27,12 +27,13 @@ public class ProductController {
 
     @GetMapping("/page")
     public Result<PageVO<ProductVO>> page(
-            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Integer status,
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
-        return Result.success(productService.pageQuery(name, categoryId, status, page, pageSize));
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) String lowStock) {
+        return Result.success(productService.pageQuery(keyword, categoryId, status, lowStock, page, pageSize));
     }
 
     @GetMapping("/{id}")
