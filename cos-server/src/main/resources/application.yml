@@ -18,8 +18,11 @@ spring:
   jackson:
     time-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
-    # 管理端前端统一使用下划线字段名（对齐数据库列名，如 real_name / order_no / pickup_code），
-    # 若保持 Jackson 默认驼峰，所有 VO 字段在前端都会取不到值。
+    # 这里的 SNAKE_CASE 是给 C 端用的：/api/app/** 的契约与 cof_sys 代码都以下划线字段为准
+    # （如 sku_id / pickup_code / created_at）。
+    # 管理端 /admin/** 由 JacksonNamingConfig 单独接管成驼峰，因为管理端契约
+    # （管理端-API联调用例.md / postman 集合 / admin-web）用的是 camelCase
+    # （realName / orderNo / warnStock / categoryId ...）。
     property-naming-strategy: SNAKE_CASE
 
 mybatis-plus:
