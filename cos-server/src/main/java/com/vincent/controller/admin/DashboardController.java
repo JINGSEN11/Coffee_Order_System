@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.service.DashboardService;
 import com.vincent.vo.AlertVO;
@@ -17,10 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * 数据看板。
+ * 类级 @RequirePerm 不带权限码：只要求是已登录的管理员。
+ * 看板对应菜单「工作台」，menu 表里它是目录节点（type=1）没有 perms，
+ * 而门店店员（role 3）也需要看板，所以这里不挂具体权限码。
+ */
 @RestController("adminDashboardController")
 @RequestMapping("/admin/dashboard")
 @RequiredArgsConstructor
 @Slf4j
+@RequirePerm
 public class DashboardController {
 
     private final DashboardService dashboardService;

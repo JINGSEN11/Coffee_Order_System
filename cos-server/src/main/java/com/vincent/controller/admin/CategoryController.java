@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.CategoryCreateDTO;
 import com.vincent.service.CategoryService;
@@ -19,23 +20,27 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/list")
+    @RequirePerm("product:category")
     public Result<List<CategoryVO>> list() {
         return Result.success(categoryService.listAll());
     }
 
     @PostMapping
+    @RequirePerm("product:category:edit")
     public Result<Void> create(@RequestBody CategoryCreateDTO dto) {
         categoryService.createCategory(dto);
         return Result.success();
     }
 
     @PutMapping("/{id}")
+    @RequirePerm("product:category:edit")
     public Result<Void> update(@PathVariable Long id, @RequestBody CategoryCreateDTO dto) {
         categoryService.updateCategory(id, dto);
         return Result.success();
     }
 
     @DeleteMapping("/{id}")
+    @RequirePerm("product:category:edit")
     public Result<Void> delete(@PathVariable Long id) {
         categoryService.deleteCategory(id);
         return Result.success();

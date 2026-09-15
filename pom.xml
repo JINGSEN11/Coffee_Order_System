@@ -34,7 +34,24 @@
     </scm>
     <properties>
         <java.version>17</java.version>
+        <!-- Spring AI 2.0.1 的 DeepSeek starter 就是按 Spring Boot 4.1.1 编译的
+             （它依赖 spring-boot-starter-webclient / restclient 4.1.1），版本必须同起同坐 -->
+        <spring-ai.version>2.0.1</spring-ai.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring AI BOM：统一管理所有 spring-ai-* 模块版本，避免各引各的导致类不齐 -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.PointsQueryDTO;
 import com.vincent.service.PointsRecordService;
@@ -21,6 +22,7 @@ public class PointsController {
      * 积分流水分页查询
      */
     @GetMapping("/page")
+    @RequirePerm("marketing:points")
     public Result<PageVO<PointsRecordVO>> page(PointsQueryDTO dto) {
         log.info("管理端分页查询积分流水：{}", dto);
         PageVO<PointsRecordVO> pageVO = pointsRecordService.pageQuery(dto);

@@ -1,0 +1,3368 @@
+{
+  "info": {
+    "name": "咖啡订购系统 - 管理端 API",
+    "description": "咖啡订购系统管理端全部接口联调用例\n\n使用说明:\n1. 导入此文件到 Apifox / Postman\n2. 设置环境变量 base_url（默认 http://localhost:8080）\n3. 先调用「员工登录」获取 token\n4. 其他接口自动携带 Authorization\n\n统一响应格式: { code: 0, message: \"操作成功\", data: ... }",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth 认证模块",
+      "item": [
+        {
+          "name": "员工登录",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "刷新 Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "auth",
+                "refresh"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"admin\"\n}"
+            }
+          }
+        },
+        {
+          "name": "获取菜单与按钮权限",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/auth/menus",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "auth",
+                "menus"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard 数据看板",
+      "item": [
+        {
+          "name": "看板统计",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/dashboard/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "dashboard",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "数据趋势",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/dashboard/trend",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "dashboard",
+                "trend"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-09-07",
+                  "description": "开始日期"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-09-14",
+                  "description": "结束日期"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "告警列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/dashboard/alerts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "dashboard",
+                "alerts"
+              ]
+            }
+          }
+        },
+        {
+          "name": "总览数据",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/dashboard/overview",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "dashboard",
+                "overview"
+              ]
+            }
+          }
+        },
+        {
+          "name": "图表数据",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/dashboard/charts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "dashboard",
+                "charts"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shop 门店管理",
+      "item": [
+        {
+          "name": "分页查询门店",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/shop/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "shop",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "",
+                  "description": "门店名称"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "0=禁用 1=启用"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "查询门店信息",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/shop/info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "shop",
+                "info"
+              ]
+            }
+          }
+        },
+        {
+          "name": "更新门店信息",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/shop/info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "shop",
+                "info"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"咖啡工坊（中山路店）\",\n    \"address\": \"中山路100号\",\n    \"phone\": \"0592-1234567\",\n    \"businessHours\": \"08:00-22:00\",\n    \"acceptOrder\": 1,\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "门店详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/shop/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "shop",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "新增门店",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/shop",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "shop"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"咖啡工坊（集美店）\",\n    \"address\": \"集美区银江路50号\",\n    \"phone\": \"0592-7654321\",\n    \"businessHours\": \"08:00-22:00\",\n    \"acceptOrder\": 1,\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "更新门店",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/shop/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "shop",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"咖啡工坊（集美店）\",\n    \"address\": \"集美区银江路50号（更新）\",\n    \"phone\": \"0592-7654321\",\n    \"businessHours\": \"08:00-22:00\",\n    \"acceptOrder\": 1,\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "删除门店",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/shop/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "shop",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "切换接单状态",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/shop/1/accept-order",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "shop",
+                "1",
+                "accept-order"
+              ],
+              "query": [
+                {
+                  "key": "acceptOrder",
+                  "value": "0",
+                  "description": "0=停止接单 1=开始接单"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Banner 轮播图管理",
+      "item": [
+        {
+          "name": "查询 Banner 列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/banner/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "banner",
+                "list"
+              ]
+            }
+          }
+        },
+        {
+          "name": "新增 Banner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/banner",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "banner"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"imageUrl\": \"https://example.com/banner1.jpg\",\n    \"linkUrl\": \"https://example.com/promo\",\n    \"sort\": 1,\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "修改 Banner",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/banner/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "banner",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"imageUrl\": \"https://example.com/banner1-updated.jpg\",\n    \"linkUrl\": \"https://example.com/promo-new\",\n    \"sort\": 1,\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "删除 Banner",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/banner/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "banner",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "切换 Banner 状态",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/banner/1/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "banner",
+                "1",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "0",
+                  "description": "0=禁用 1=启用"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Category 分类管理",
+      "item": [
+        {
+          "name": "查询分类列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/category/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "category",
+                "list"
+              ]
+            }
+          }
+        },
+        {
+          "name": "新增分类",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/category",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "category"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"手冲咖啡\",\n    \"sort\": 1,\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "修改分类",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/category/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "category",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"精品手冲\",\n    \"sort\": 1,\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "删除分类",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/category/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "category",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Config 系统配置",
+      "item": [
+        {
+          "name": "查询配置列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/config/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "config",
+                "list"
+              ]
+            }
+          }
+        },
+        {
+          "name": "配置详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/config/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "config",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "新增配置",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/config",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "config"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"configKey\": \"store_notice\",\n    \"configValue\": \"欢迎光临\",\n    \"description\": \"门店公告\"\n}"
+            }
+          }
+        },
+        {
+          "name": "修改配置",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/config/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "config",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"configKey\": \"store_notice\",\n    \"configValue\": \"欢迎光临咖啡工坊！\",\n    \"description\": \"门店公告\"\n}"
+            }
+          }
+        },
+        {
+          "name": "删除配置",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/config/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "config",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Coupon 优惠券管理",
+      "item": [
+        {
+          "name": "优惠券列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupon/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupon",
+                "list"
+              ]
+            }
+          }
+        },
+        {
+          "name": "优惠券分页",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupon/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupon",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "",
+                  "description": "优惠券名称"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "0=禁用 1=启用"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "优惠券详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupon/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupon",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "新增优惠券",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupon",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupon"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"新人专享5折券\",\n    \"type\": 2,\n    \"thresholdAmount\": 0,\n    \"discountRate\": 0.5,\n    \"totalCount\": 1000,\n    \"perUserLimit\": 1,\n    \"validStartTime\": \"2026-09-14T00:00:00\",\n    \"validEndTime\": \"2026-10-14T23:59:59\",\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "修改优惠券",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupon/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupon",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"新人专享5折券（更新）\",\n    \"type\": 2,\n    \"thresholdAmount\": 10,\n    \"discountRate\": 0.5,\n    \"totalCount\": 500,\n    \"perUserLimit\": 1,\n    \"validStartTime\": \"2026-09-14T00:00:00\",\n    \"validEndTime\": \"2026-10-14T23:59:59\",\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "删除优惠券",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupon/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupon",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "查看优惠券领取用户",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/coupon/1/issued-users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "coupon",
+                "1",
+                "issued-users"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employee 员工管理",
+      "item": [
+        {
+          "name": "员工列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/employee/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employee",
+                "list"
+              ]
+            }
+          }
+        },
+        {
+          "name": "员工分页",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/employee/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employee",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "",
+                  "description": "用户名/姓名"
+                },
+                {
+                  "key": "roleId",
+                  "value": "",
+                  "description": "角色ID"
+                },
+                {
+                  "key": "shopId",
+                  "value": "",
+                  "description": "门店ID"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "当前登录员工信息",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/employee/current",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employee",
+                "current"
+              ]
+            }
+          }
+        },
+        {
+          "name": "员工详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/employee/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employee",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "新增员工",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/employee",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employee"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"zhangsan\",\n    \"password\": \"123456\",\n    \"realName\": \"张三\",\n    \"roleId\": 2,\n    \"shopId\": 1,\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "修改员工",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/employee/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employee",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"zhangsan\",\n    \"password\": \"\",\n    \"realName\": \"张三（已更新）\",\n    \"roleId\": 2,\n    \"shopId\": 1,\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "删除员工",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/employee/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employee",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "切换员工状态",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/employee/1/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employee",
+                "1",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "0",
+                  "description": "0=禁用 1=启用"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "重置密码",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/employee/1/reset-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "employee",
+                "1",
+                "reset-password"
+              ],
+              "query": [
+                {
+                  "key": "newPassword",
+                  "value": "654321",
+                  "description": "新密码"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Log 操作日志",
+      "item": [
+        {
+          "name": "分页查询操作日志",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/log/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "log",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "operator",
+                  "value": "",
+                  "description": "操作人"
+                },
+                {
+                  "key": "module",
+                  "value": "",
+                  "description": "操作模块"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "description": "开始日期"
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "description": "结束日期"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Member 会员管理",
+      "item": [
+        {
+          "name": "会员列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/member/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "member",
+                "list"
+              ]
+            }
+          }
+        },
+        {
+          "name": "会员分页",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/member/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "member",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "",
+                  "description": "昵称/手机号"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "0=禁用 1=启用"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "当前会员信息",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/member/current",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "member",
+                "current"
+              ]
+            }
+          }
+        },
+        {
+          "name": "会员详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/member/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "member",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "修改会员",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/member",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "member"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 1,\n    \"nickname\": \"咖啡爱好者\",\n    \"avatar\": \"https://example.com/avatar.jpg\",\n    \"phone\": \"13800138000\"\n}"
+            }
+          }
+        },
+        {
+          "name": "切换会员状态",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/member/1/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "member",
+                "1",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "0",
+                  "description": "0=禁用 1=启用"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Menu 菜单管理",
+      "item": [
+        {
+          "name": "获取菜单树",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu/tree",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "menu",
+                "tree"
+              ]
+            }
+          }
+        },
+        {
+          "name": "新增菜单",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "menu"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"parentId\": 0,\n    \"name\": \"订单管理\",\n    \"path\": \"/order\",\n    \"component\": \"order/index\",\n    \"icon\": \"ShoppingCart\",\n    \"sort\": 1,\n    \"type\": 2,\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "修改菜单",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "menu"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 1,\n    \"parentId\": 0,\n    \"name\": \"订单管理（更新）\",\n    \"path\": \"/order\",\n    \"component\": \"order/index\",\n    \"icon\": \"ShoppingCart\",\n    \"sort\": 1,\n    \"type\": 2,\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "删除菜单",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "menu",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notice 公告管理",
+      "item": [
+        {
+          "name": "公告列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/notice/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "notice",
+                "list"
+              ]
+            }
+          }
+        },
+        {
+          "name": "公告分页",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/notice/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "notice",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "title",
+                  "value": "",
+                  "description": "标题"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "0=草稿 1=发布"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "公告详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/notice/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "notice",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "新增公告",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/notice",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "notice"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"国庆节营业通知\",\n    \"content\": \"国庆期间正常营业，欢迎光临！\",\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "修改公告",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/notice/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "notice",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"title\": \"国庆节营业通知（更新）\",\n    \"content\": \"国庆期间10月1日-10月3日休息，4日起正常营业\",\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "删除公告",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/notice/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "notice",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order 订单管理",
+      "item": [
+        {
+          "name": "订单看板",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/order/board",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "order",
+                "board"
+              ]
+            }
+          }
+        },
+        {
+          "name": "订单池",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/order/pool",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "order",
+                "pool"
+              ]
+            }
+          }
+        },
+        {
+          "name": "订单详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/order/details/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "order",
+                "details",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "订单分页",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/order/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "order",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "orderNo",
+                  "value": "",
+                  "description": "订单号"
+                },
+                {
+                  "key": "userId",
+                  "value": "",
+                  "description": "会员ID"
+                },
+                {
+                  "key": "shopId",
+                  "value": "",
+                  "description": "门店ID"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "订单状态"
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "订单类型"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "description": "开始日期"
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "description": "结束日期"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "更新订单状态",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/order/1/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "order",
+                "1",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "3",
+                  "description": "目标状态码"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "取消订单",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/order/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "order",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "reason",
+                  "value": "顾客要求取消",
+                  "description": "取消原因"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Points 积分流水",
+      "item": [
+        {
+          "name": "分页查询积分流水",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/points/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "points",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "",
+                  "description": "会员ID"
+                },
+                {
+                  "key": "userNickname",
+                  "value": "",
+                  "description": "会员昵称"
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "1=获得 2=使用"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "description": "开始日期"
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "description": "结束日期"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Product 商品管理",
+      "item": [
+        {
+          "name": "商品列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product",
+                "list"
+              ]
+            }
+          }
+        },
+        {
+          "name": "商品分页",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "",
+                  "description": "商品名称"
+                },
+                {
+                  "key": "categoryId",
+                  "value": "",
+                  "description": "分类ID"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "0=下架 1=上架"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "商品详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "新增商品",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"categoryId\": 1,\n    \"name\": \"经典拿铁\",\n    \"description\": \"浓缩咖啡与丝滑牛奶的完美融合\",\n    \"image\": \"https://example.com/latte.jpg\",\n    \"tags\": \"热销,经典\",\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "修改商品",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"categoryId\": 1,\n    \"name\": \"经典拿铁（升级版）\",\n    \"description\": \"浓缩咖啡与丝滑牛奶的完美融合，口感更醇厚\",\n    \"image\": \"https://example.com/latte-new.jpg\",\n    \"tags\": \"热销,经典,升级\",\n    \"status\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "删除商品",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "批量创建 SKU",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product/1/sku",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product",
+                "1",
+                "sku"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n    {\n        \"specsJson\": \"{\\\"size\\\":\\\"大杯\\\",\\\"temperature\\\":\\\"冰\\\"}\",\n        \"price\": 28.0,\n        \"stock\": 100,\n        \"warnStock\": 10\n    },\n    {\n        \"specsJson\": \"{\\\"size\\\":\\\"中杯\\\",\\\"temperature\\\":\\\"热\\\"}\",\n        \"price\": 24.0,\n        \"stock\": 100,\n        \"warnStock\": 10\n    }\n]"
+            }
+          }
+        },
+        {
+          "name": "批量更新 SKU",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/product/1/sku",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "product",
+                "1",
+                "sku"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n    {\n        \"id\": 1,\n        \"specsJson\": \"{\\\"size\\\":\\\"大杯\\\",\\\"temperature\\\":\\\"冰\\\"}\",\n        \"price\": 30.0,\n        \"stock\": 200,\n        \"warnStock\": 20\n    },\n    {\n        \"id\": 2,\n        \"specsJson\": \"{\\\"size\\\":\\\"中杯\\\",\\\"temperature\\\":\\\"热\\\"}\",\n        \"price\": 26.0,\n        \"stock\": 150,\n        \"warnStock\": 15\n    }\n]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refund 退款管理",
+      "item": [
+        {
+          "name": "退款记录分页",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/order/refund/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "order",
+                "refund",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "orderNo",
+                  "value": "",
+                  "description": "订单号"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "退款状态"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "description": "开始日期"
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "description": "结束日期"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "退款概览",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/order/refund/info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "order",
+                "refund",
+                "info"
+              ]
+            }
+          }
+        },
+        {
+          "name": "退款记录详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/order/refund/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "order",
+                "refund",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "审核退款",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/order/refund/status/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "order",
+                "refund",
+                "status",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"approved\",\n    \"reason\": \"审核通过，同意退款\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Review 评价管理",
+      "item": [
+        {
+          "name": "评价分页",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/review/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "review",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "score",
+                  "value": "",
+                  "description": "评分 1~5"
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "description": "0=待审核 1=通过 2=驳回"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "评价详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/review/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "review",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "审核评价",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/review/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "review",
+                "approve"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 1,\n    \"status\": 1\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Role 角色管理",
+      "item": [
+        {
+          "name": "角色列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/role/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "role",
+                "list"
+              ]
+            }
+          }
+        },
+        {
+          "name": "角色详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/role/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "role",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "新增角色",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "role"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"店长\",\n    \"description\": \"门店管理者\",\n    \"status\": 1,\n    \"menuIds\": [\n        1,\n        2,\n        3,\n        4,\n        5\n    ]\n}"
+            }
+          }
+        },
+        {
+          "name": "修改角色",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/role/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "role",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"店长（更新）\",\n    \"description\": \"门店管理者，可管理门店所有事务\",\n    \"status\": 1,\n    \"menuIds\": [\n        1,\n        2,\n        3,\n        4,\n        5,\n        6\n    ]\n}"
+            }
+          }
+        },
+        {
+          "name": "删除角色",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/role/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "role",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "分配菜单权限",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/role/1/assign-menus",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "role",
+                "1",
+                "assign-menus"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "[\n    1,\n    2,\n    3,\n    4,\n    5,\n    6,\n    7\n]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sku SKU 管理",
+      "item": [
+        {
+          "name": "SKU 分页",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/sku/page",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "sku",
+                "page"
+              ],
+              "query": [
+                {
+                  "key": "productId",
+                  "value": "",
+                  "description": "商品ID"
+                },
+                {
+                  "key": "productName",
+                  "value": "",
+                  "description": "商品名称"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "库存预警列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/sku/warn",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "sku",
+                "warn"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "SKU 详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/sku/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "sku",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "更新 SKU",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/sku/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "sku",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"price\": 30.0,\n    \"stock\": 200,\n    \"warnStock\": 20\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stock 库存管理",
+      "item": [
+        {
+          "name": "库存列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/stock/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "stock",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "productId",
+                  "value": "",
+                  "description": "商品ID"
+                },
+                {
+                  "key": "productName",
+                  "value": "",
+                  "description": "商品名称"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "入库操作",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/stock/in",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "stock",
+                "in"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"skuId\": 388,\n    \"quantity\": 50\n}"
+            }
+          }
+        },
+        {
+          "name": "预警值设置",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/stock/warning/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "stock",
+                "warning",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"warnStock\": 30\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "TableQr 桌码管理",
+      "item": [
+        {
+          "name": "桌码分页",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/table/list",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "table",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "keyword",
+                  "value": "",
+                  "description": "桌号/区域"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": ""
+                },
+                {
+                  "key": "pageSize",
+                  "value": "10",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "全部桌码列表",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/table/all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "table",
+                "all"
+              ]
+            }
+          }
+        },
+        {
+          "name": "桌码详情",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/table/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "table",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "新增桌码",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/table",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "table"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tableNo\": \"A-01\",\n    \"area\": \"大厅\",\n    \"seats\": 4\n}"
+            }
+          }
+        },
+        {
+          "name": "修改桌码",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/table/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "table",
+                "1"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"tableNo\": \"A-01\",\n    \"area\": \"大厅（更新）\",\n    \"seats\": 6\n}"
+            }
+          }
+        },
+        {
+          "name": "删除桌码",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/table/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "table",
+                "1"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

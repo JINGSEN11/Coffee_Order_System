@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.OrderQueryDTO;
 import com.vincent.service.OrderService;
@@ -24,6 +25,7 @@ public class OrderController {
      * 订单看板数据
      */
     @GetMapping("/board")
+    @RequirePerm("order:board")
     public Result<OrderBoardVO> board() {
         return Result.success(orderService.board());
     }
@@ -32,6 +34,7 @@ public class OrderController {
      * 订单池（待处理/制作中的订单列表）
      */
     @GetMapping("/pool")
+    @RequirePerm("order:pool")
     public Result<List<OrderVO>> pool() {
         return Result.success(orderService.pool());
     }
@@ -40,6 +43,7 @@ public class OrderController {
      * 订单详情
      */
     @GetMapping("/details/{id}")
+    @RequirePerm("order:list")
     public Result<OrderVO> detail(@PathVariable Long id) {
         log.info("管理端查询订单详情，id：{}", id);
         OrderVO orderVO = orderService.detail(id);
@@ -50,6 +54,7 @@ public class OrderController {
      * 订单分页查询
      */
     @GetMapping("/page")
+    @RequirePerm("order:list")
     public Result<PageVO<OrderVO>> page(OrderQueryDTO dto) {
         log.info("管理端分页查询订单：{}", dto);
         PageVO<OrderVO> pageVO = orderService.pageQuery(dto);
@@ -59,7 +64,12 @@ public class OrderController {
     /**
      * 更新订单状态
      */
+    /**
+     * 更新订单状态（接单 / 出餐 / 叫号等）。
+     * 一个接口承担多种流转，故按「任一订单操作权限」放行：门店店员持有 accept/finish/call/pickup 四种。
+     */
     @PutMapping("/{id}/status")
+    @RequirePerm({"order:accept", "order:finish", "order:call", "order:pickup"})
     public Result<Void> updateStatus(@PathVariable Long id, @RequestParam Integer status) {
         log.info("管理端更新订单状态，id：{}，status：{}", id, status);
         orderService.updateStatus(id, status);
@@ -70,6 +80,7 @@ public class OrderController {
      * 取消订单
      */
     @DeleteMapping("/{id}")
+    @RequirePerm("order:cancel")
     public Result<Void> cancel(@PathVariable Long id, @RequestParam(required = false) String reason) {
         log.info("管理端取消订单，id：{}，原因：{}", id, reason);
         orderService.cancel(id, reason);

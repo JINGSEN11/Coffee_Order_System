@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.SkuCreateDTO;
 import com.vincent.dto.SkuQueryDTO;
@@ -23,6 +24,7 @@ public class StockController {
      * 库存分页列表（按 SKU 维度，返回里带商品名）
      */
     @GetMapping("/list")
+    @RequirePerm("product:stock")
     public Result<PageVO<SkuVO>> list(SkuQueryDTO dto) {
         log.info("管理端查询库存列表：{}", dto);
         PageVO<SkuVO> pageVO = skuService.pageQuery(dto);
@@ -33,6 +35,7 @@ public class StockController {
      * 入库操作：给某一个 SKU 加库存
      */
     @PostMapping("/in")
+    @RequirePerm("stock:adjust")
     public Result<Void> stockIn(@RequestBody StockInDTO dto) {
         log.info("管理端入库操作：skuId={}, quantity={}", dto.getSkuId(), dto.getQuantity());
 
@@ -51,6 +54,7 @@ public class StockController {
      * 预警值设置
      */
     @PutMapping("/warning/{id}")
+    @RequirePerm("stock:adjust")
     public Result<Void> warning(@PathVariable Long id, @RequestBody SkuCreateDTO dto) {
         log.info("管理端设置预警库存：id={}, warnStock={}", id, dto.getWarnStock());
 

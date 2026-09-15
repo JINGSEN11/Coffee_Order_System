@@ -15,6 +15,8 @@ public class Category {
     private String name;
     private Integer sort;
     private Integer status;
+    /** C 端菜单是否展示 1是 0否（加料分类为 0：它只作为饮品的可选项出现） */
+    private Integer showInApp;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
