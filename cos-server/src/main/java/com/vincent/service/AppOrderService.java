@@ -2,6 +2,7 @@ package com.vincent.service;
 
 import com.vincent.dto.AppOrderCreateDTO;
 import com.vincent.dto.AppReviewCreateDTO;
+import com.vincent.dto.ApplyRefundDTO;
 import com.vincent.entity.Orders;
 import com.vincent.vo.AppOrderListVO;
 import com.vincent.vo.AppOrderVO;
@@ -25,6 +26,13 @@ public interface AppOrderService {
 
     /** 取消订单 */
     AppOrderVO cancel(Long userId, String idOrNo, String reason);
+
+    /**
+     * 申请退款。
+     * 未接单（status=1）按订单状态机秒退；制作中/已完成（2/3）落一条待审核流水并把订单置为退款中，
+     * 等管理端审核通过后才真正回退库存与积分。
+     */
+    AppOrderVO applyRefund(Long userId, String idOrNo, ApplyRefundDTO dto);
 
     /** 再来一单：把历史订单明细写回购物车，返回 {added, cart} */
     Map<String, Object> again(Long userId, String idOrNo);

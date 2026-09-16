@@ -5,6 +5,7 @@ import com.vincent.common.Result;
 import com.vincent.dto.AppOrderCancelDTO;
 import com.vincent.dto.AppOrderCreateDTO;
 import com.vincent.dto.AppReviewCreateDTO;
+import com.vincent.dto.ApplyRefundDTO;
 import com.vincent.service.AppOrderService;
 import com.vincent.vo.AppOrderListVO;
 import com.vincent.vo.AppOrderVO;
@@ -52,6 +53,13 @@ public class AppOrderController {
                                      @RequestBody(required = false) AppOrderCancelDTO dto) {
         return Result.success(appOrderService.cancel(BaseContext.getCurrentId(), id,
                 dto == null ? null : dto.getReason()));
+    }
+
+    /** 申请退款：未接单秒退，制作中/已完成转入退款中等待门店审核 */
+    @PostMapping("/order/{id}/refund")
+    public Result<AppOrderVO> applyRefund(@PathVariable String id,
+                                          @RequestBody(required = false) ApplyRefundDTO dto) {
+        return Result.success(appOrderService.applyRefund(BaseContext.getCurrentId(), id, dto));
     }
 
     /** 再来一单 */

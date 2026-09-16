@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.vincent.common.exception.ServiceException;
 import com.vincent.dto.AppOrderCreateDTO;
 import com.vincent.dto.AppReviewCreateDTO;
+import com.vincent.dto.ApplyRefundDTO;
 import com.vincent.entity.Coupon;
 import com.vincent.entity.Member;
 import com.vincent.entity.OrderItem;
@@ -73,6 +74,7 @@ public class AppOrderServiceImpl implements AppOrderService {
     private static final String CANCEL_REASON_DEFAULT = "顾客主动取消";
     private static final String CANCEL_REASON_TIMEOUT = "支付超时自动关单";
     private static final DateTimeFormatter ORDER_NO_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    private static final DateTimeFormatter REFUND_NO_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private final OrderMapper orderMapper;
     private final OrderItemMapper orderItemMapper;
@@ -90,6 +92,7 @@ public class AppOrderServiceImpl implements AppOrderService {
     private final AppCartService appCartService;
     private final AppConfigHelper appConfigHelper;
     private final AppShopResolver shopResolver;
+    private final OrderRefundSettlement refundSettlement;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -306,35 +309,95 @@ public class AppOrderServiceImpl implements AppOrderService {
         LocalDateTime now = LocalDateTime.now();
         String finalReason = StringUtils.hasText(reason) ? reason : CANCEL_REASON_DEFAULT;
 
-        order.setStatus(wasPaid ? 7 : 4);
-        order.setCancelTime(now);
-        order.setCancelReason(finalReason);
-        // 已发号的订单作废取餐码，号不回收
-        order.setPickupStatus(order.getPickupNo() != null ? 5 : 0);
-        order.setUpdatedAt(now);
-        orderMapper.updateById(order);
-
         if (wasPaid) {
-            RefundRecord refund = new RefundRecord();
-            refund.setOrderId(order.getId());
-            refund.setRefundNo("RF" + now.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-                    + String.format("%05d", order.getId()));
-            refund.setAmount(payAmountOf(order));
-            refund.setReason(finalReason);
-            refund.setStatus(1);
-            refund.setOperator("系统自动");
-            refund.setCallbackTime(now);
-            refund.setCreatedAt(now);
-            refundRecordMapper.insert(refund);
-        }
-
-        releaseCoupon(order);
-        if (wasPaid) {
-            refundPoints(order, now);
-            restoreStock(order);
+            // 已支付取消 = 全额退款，与「申请退款」走同一套结算，口径不分叉
+            insertRefundRecord(order, refundSettlement.payAmountOf(order), finalReason, now, 1, "系统自动");
+            refundSettlement.settle(order, finalReason, now);
+        } else {
+            order.setStatus(4);
+            order.setCancelTime(now);
+            order.setCancelReason(finalReason);
+            order.setUpdatedAt(now);
+            orderMapper.updateById(order);
+            // 未支付订单的券在下单时就锁定了，取消要释放
+            refundSettlement.releaseLockedCoupon(order);
         }
         log.info("会员 {} 取消订单 {}，原因：{}", userId, order.getOrderNo(), finalReason);
         return buildOrderVO(orderMapper.selectById(order.getId()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public AppOrderVO applyRefund(Long userId, String idOrNo, ApplyRefundDTO dto) {
+        Orders order = resolveOwned(userId, idOrNo);
+        Integer status = order.getStatus();
+        if (status == null) {
+            throw new ServiceException("订单状态异常，请联系门店");
+        }
+        if (status == 6) {
+            throw new ServiceException("退款申请正在处理中，请耐心等待");
+        }
+        if (status == 7) {
+            throw new ServiceException("该订单已退款");
+        }
+        if (status == 0) {
+            throw new ServiceException("订单尚未支付，请直接取消订单");
+        }
+        if (status != 1 && status != 2 && status != 3) {
+            throw new ServiceException("该状态下不可申请退款，请联系门店");
+        }
+
+        String reason = dto == null ? null : dto.getReason();
+        if (!StringUtils.hasText(reason)) {
+            throw new ServiceException("请填写退款原因");
+        }
+
+        BigDecimal payable = refundSettlement.payAmountOf(order);
+        BigDecimal amount = dto.getAmount() == null ? payable : AppCalc.money(dto.getAmount());
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ServiceException("退款金额必须大于 0");
+        }
+        if (amount.compareTo(payable) > 0) {
+            throw new ServiceException("退款金额不能超过实付金额 ¥" + payable);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        // 未接单可直接秒退（订单状态机：顾客申请取消(未接单前，秒退)）；
+        // 已接单/已完成要等门店审核，审核通过才回退库存与积分
+        boolean instant = status == 1;
+
+        insertRefundRecord(order, amount, reason, now, instant ? 1 : 0,
+                instant ? "系统自动(未接单秒退)" : "会员申请");
+
+        if (instant) {
+            refundSettlement.settle(order, reason, now);
+        } else {
+            order.setStatus(6);
+            order.setCancelReason(reason);
+            order.setUpdatedAt(now);
+            orderMapper.updateById(order);
+        }
+
+        log.info("会员 {} 申请退款，订单 {}，金额 {}，原因：{}，{}",
+                userId, order.getOrderNo(), amount, reason, instant ? "未接单秒退" : "待门店审核");
+        return buildOrderVO(orderMapper.selectById(order.getId()));
+    }
+
+    /** 写一条退款流水；status 1=退款成功（秒退/自动），0=待处理 */
+    private void insertRefundRecord(Orders order, BigDecimal amount, String reason,
+                                    LocalDateTime now, int status, String operator) {
+        RefundRecord refund = new RefundRecord();
+        refund.setOrderId(order.getId());
+        refund.setRefundNo("RF" + now.format(REFUND_NO_FORMAT) + String.format("%05d", order.getId()));
+        refund.setAmount(amount);
+        refund.setReason(reason);
+        refund.setStatus(status);
+        refund.setOperator(operator);
+        if (status == 1) {
+            refund.setCallbackTime(now);
+        }
+        refund.setCreatedAt(now);
+        refundRecordMapper.insert(refund);
     }
 
     @Override
@@ -551,7 +614,7 @@ public class AppOrderServiceImpl implements AppOrderService {
         order.setUpdatedAt(LocalDateTime.now());
         orderMapper.updateById(order);
         // 超时关单同时释放锁定的券，避免券被永久占用
-        releaseCoupon(order);
+        refundSettlement.releaseLockedCoupon(order);
         log.info("订单 {} 支付超时自动关单", order.getOrderNo());
         return order;
     }
@@ -662,23 +725,6 @@ public class AppOrderServiceImpl implements AppOrderService {
         }
     }
 
-    private void restoreStock(Orders order) {
-        List<OrderItem> items = orderItemMapper.selectList(
-                new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, order.getId())
-        );
-        for (OrderItem item : items) {
-            Sku sku = item.getSkuId() == null ? null : skuMapper.selectById(item.getSkuId());
-            if (sku == null) {
-                continue;
-            }
-            Sku update = new Sku();
-            update.setId(sku.getId());
-            update.setStock((sku.getStock() == null ? 0 : sku.getStock())
-                    + (item.getQty() == null ? 0 : item.getQty()));
-            skuMapper.updateById(update);
-        }
-    }
-
     /** 支付成功时扣减积分并记流水 type=2 抵扣消耗 */
     private void consumePoints(Orders order, LocalDateTime now) {
         int used = order.getPointsUsed() == null ? 0 : order.getPointsUsed();
@@ -700,41 +746,6 @@ public class AppOrderServiceImpl implements AppOrderService {
         record.setOrderId(order.getId());
         record.setCreatedAt(now);
         pointsRecordMapper.insert(record);
-    }
-
-    /** 退款/取消时退回积分并记流水 type=3 退款退回 */
-    private void refundPoints(Orders order, LocalDateTime now) {
-        int used = order.getPointsUsed() == null ? 0 : order.getPointsUsed();
-        if (used <= 0) {
-            return;
-        }
-        Member member = memberMapper.selectById(order.getUserId());
-        if (member != null) {
-            Member update = new Member();
-            update.setId(member.getId());
-            update.setPoints((member.getPoints() == null ? 0 : member.getPoints()) + used);
-            update.setUpdatedAt(now);
-            memberMapper.updateById(update);
-        }
-        PointsRecord record = new PointsRecord();
-        record.setUserId(order.getUserId());
-        record.setChangeValue(used);
-        record.setType(3);
-        record.setOrderId(order.getId());
-        record.setCreatedAt(now);
-        pointsRecordMapper.insert(record);
-    }
-
-    /** 释放订单锁定的持券 */
-    private void releaseCoupon(Orders order) {
-        if (order.getUserCouponId() == null) {
-            return;
-        }
-        // order_id / used_at 需要显式置 NULL，updateById 无法写空值，故用 setSql
-        userCouponMapper.update(null, new LambdaUpdateWrapper<UserCoupon>()
-                .eq(UserCoupon::getId, order.getUserCouponId())
-                .set(UserCoupon::getStatus, 0)
-                .setSql("order_id = NULL, used_at = NULL"));
     }
 
     private Orders resolveOwned(Long userId, String idOrNo) {

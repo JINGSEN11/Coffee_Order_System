@@ -778,6 +778,8 @@
 ### 16.1 退款记录分页
 
 - **URL**：`GET /order/refund/page?orderNo=&status=&startDate=&endDate=&page=1&pageSize=10`
+- **参数**：`orderNo` 匹配的是**订单号**（不是退款单号）；`status` 0=待处理/1=已退款/2=已拒绝
+- **说明**：返回的每条记录都带 `orderNo`，可直接定位到订单
 
 ### 16.2 退款概览
 
@@ -790,15 +792,42 @@
 ### 16.4 审核退款
 
 - **URL**：`PUT /order/refund/status/{id}`
+- **权限**：`order:refund:audit`
+
+**通过**
 
 ```json
 {
     "status": "approved",
-    "reason": "审核通过，同意退款"
+    "received": true,
+    "refundNo": "4200001234202609161234567890"
+}
+```
+
+**拒绝**
+
+```json
+{
+    "status": "rejected",
+    "reason": "已开始制作，无法退款"
 }
 ```
 
 > **status 取值**：`approved`=通过, `rejected`=拒绝
+>
+> **`received` 必填且必须为 true**：当前微信支付是沙箱直通模式，后端发不出真实的退款请求，
+> 钱需要商家在微信商户平台操作。不默认放行是为了避免「点一下通过、订单标成已退款、但钱没退」
+> 这种和商户后台对不上账的情况。
+> 若商户后台显示退款成功但这里没传 `received`，接口会返回业务异常。
+>
+> **`refundNo` 可选**：填微信退款单号便于对账；不传则按 `RF + yyyyMMdd + 5 位 id` 生成本地单号。
+>
+> **通过后的连锁动作**：订单置 `status=7 已退款`、`pickup_status=5 已作废`；
+> 归还库存、退回抵扣积分（写 `points_record` type=3）、释放优惠券。
+> 订单必须处于 `status=6 退款中` 才允许通过，否则报业务异常（防重复审核）。
+>
+> **拒绝后的连锁动作**：订单回到申请前的状态（出过餐回 `3 已完成`，否则回 `2 制作中`），
+> 原因写入 `cancel_reason` 并追加到退款流水的 `reason` 里；**不回退**库存与积分。
 
 ---
 
