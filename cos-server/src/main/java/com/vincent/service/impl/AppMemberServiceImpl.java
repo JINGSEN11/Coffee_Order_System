@@ -1,7 +1,9 @@
 package com.vincent.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.vincent.common.exception.ServiceException;
+import com.vincent.dto.AppMemberUpdateDTO;
 import com.vincent.entity.Member;
 import com.vincent.entity.Orders;
 import com.vincent.entity.PointsRecord;
@@ -16,8 +18,12 @@ import com.vincent.vo.AppPointsVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,6 +69,9 @@ public class AppMemberServiceImpl implements AppMemberService {
         vo.setNickname(member.getNickname());
         vo.setAvatar(member.getAvatar());
         vo.setPhone(member.getPhone());
+        vo.setBirthday(member.getBirthday());
+        vo.setBirthdayToday(MemberPointsService.isBirthday(member.getBirthday(), LocalDate.now()));
+        vo.setBirthdayMultiple(appConfigHelper.intValue("birthday_points_multiple", 2));
         vo.setPoints(points);
         vo.setStatus(member.getStatus());
         vo.setCreatedAt(member.getCreatedAt());
@@ -110,8 +119,44 @@ public class AppMemberServiceImpl implements AppMemberService {
         return vo;
     }
 
-    private BigDecimal payAmountOf(Orders order) {
-        BigDecimal amount = order.getAmount() == null ? BigDecimal.ZERO : order.getAmount();
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public AppMemberVO updateProfile(Long userId, AppMemberUpdateDTO dto) {
+        Member member = userId == null ? null : memberMapper.selectById(userId);
+        if (member == null) {
+            throw new ServiceException("会员不存在");
+        }
+        if (dto == null) {
+            return memberInfo(userId);
+        }
+        if (dto.getBirthday() != null && dto.getBirthday().isAfter(LocalDate.now())) {
+            throw new ServiceException("生日不能是未来的日期");
+        }
+
+        // 用 UpdateWrapper 而不是 updateById：updateById 会忽略 null 字段，
+        // 那样「清除生日」就写不进去（传 null 等于什么都没发生）。
+        LambdaUpdateWrapper<Member> update = new LambdaUpdateWrapper<Member>()
+                .eq(Member::getId, member.getId())
+                .set(Member::getUpdatedAt, LocalDateTime.now());
+        if (StringUtils.hasText(dto.getNickname())) {
+            update.set(Member::getNickname, dto.getNickname().trim());
+        }
+        if (StringUtils.hasText(dto.getAvatar())) {
+            update.set(Member::getAvatar, dto.getAvatar().trim());
+        }
+        // 生日是全量语义：传了就是设成它，传 null 就是清除
+        if (dto.getBirthday() != null) {
+            update.set(Member::getBirthday, dto.getBirthday());
+        } else {
+            update.setSql("birthday = NULL");
+        }
+        memberMapper.update(null, update);
+
+        log.info("会员 {} 更新资料，生日={}", userId, dto.getBirthday());
+        return memberInfo(userId);
+    }
+
+    private BigDecimal payAmountOf(Orders order) {        BigDecimal amount = order.getAmount() == null ? BigDecimal.ZERO : order.getAmount();
         BigDecimal discount = order.getDiscountAmount() == null ? BigDecimal.ZERO : order.getDiscountAmount();
         return AppCalc.money(amount.subtract(discount).max(BigDecimal.ZERO));
     }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,6 +17,8 @@ public class Member {
     private String nickname;
     private String avatar;
     private String phone;
+    /** 生日，仅「月 + 日」参与生日双倍积分判定，年份不参与 */
+    private LocalDate birthday;
     private Integer points;
     private Integer status;
     private LocalDateTime createdAt;

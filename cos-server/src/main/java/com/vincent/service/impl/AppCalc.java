@@ -266,6 +266,7 @@ public final class AppCalc {
             case 4 -> "管理员调整";
             case 5 -> "评价奖励";
             case 6 -> "退款扣回";
+            case 7 -> "生日双倍加成";
             default -> "其他";
         };
     }

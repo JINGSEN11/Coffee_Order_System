@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -16,6 +17,13 @@ public class AppMemberVO {
     private String nickname;
     private String avatar;
     private String phone;
+    /** 生日 yyyy-MM-dd；未设置为 null */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birthday;
+    /** 今天是不是该会员生日（会员日下单积分翻倍，前端据此提示） */
+    private Boolean birthdayToday;
+    /** 生日当天的积分倍数（sys_config.birthday_points_multiple，默认 2） */
+    private Integer birthdayMultiple;
     private Integer points;
     private Integer status;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Shanghai")
