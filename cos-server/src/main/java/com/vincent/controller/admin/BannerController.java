@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.BannerCreateDTO;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RestController("adminBannerController")
 @RequestMapping("/admin/banner")
+@OpLog(module = "轮播图")
 @RequiredArgsConstructor
 @Slf4j
 public class BannerController {

@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.CategoryCreateDTO;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RestController("adminCategoryController")
 @RequestMapping("/admin/category")
+@OpLog(module = "商品分类")
 @RequiredArgsConstructor
 @Slf4j
 public class CategoryController {

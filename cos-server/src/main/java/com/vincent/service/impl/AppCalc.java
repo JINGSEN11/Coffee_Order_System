@@ -6,6 +6,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.vincent.dto.AppAddonDTO;
 import com.vincent.entity.Coupon;
+import com.vincent.entity.Orders;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -72,6 +73,25 @@ public final class AppCalc {
         int rate = deductRate <= 0 ? 100 : deductRate;
         BigDecimal rest = amount == null ? BigDecimal.ZERO : amount;
         return rest.multiply(BigDecimal.valueOf(rate)).setScale(0, RoundingMode.FLOOR).intValue();
+    }
+
+    /**
+     * 实付金额 → 消费获得的积分（F-U20：消费 1 元 = 1 积分）。
+     *
+     * earnRate 即 sys_config.points_rate，100 表示 1 元得 1 分，200 表示 1 元得 2 分。
+     * 基数是**实付**（amount - discount_amount）：用券和积分抵扣掉的部分不再产生积分，
+     * 否则「拿积分抵钱 → 抵掉的部分又生出积分」会自循环。
+     * 向下取整，与种子数据 gen_seed_data.mjs 的 Math.floor(payAmount) 口径一致。
+     */
+    public static int amountToEarnPoints(BigDecimal paidAmount, int earnRate) {
+        int rate = earnRate <= 0 ? 100 : earnRate;
+        BigDecimal rest = paidAmount == null ? BigDecimal.ZERO : paidAmount;
+        if (rest.signum() <= 0) {
+            return 0;
+        }
+        return rest.multiply(BigDecimal.valueOf(rate))
+                .divide(BigDecimal.valueOf(100), 0, RoundingMode.FLOOR)
+                .intValue();
     }
 
     /**
@@ -244,6 +264,8 @@ public final class AppCalc {
             case 2 -> "抵扣消耗";
             case 3 -> "退款退回";
             case 4 -> "管理员调整";
+            case 5 -> "评价奖励";
+            case 6 -> "退款扣回";
             default -> "其他";
         };
     }
@@ -252,5 +274,16 @@ public final class AppCalc {
     public static String outTradeNo(Long orderId) {
         String suffix = orderId == null ? "000000" : String.format("%06d", orderId);
         return "OT" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + suffix;
+    }
+
+    /**
+     * 订单实付金额 = 商品总额 - 优惠总额，下限 0。
+     * 「实付」是退款上限、营收口径、消费积分的共同基数，只此一处实现。
+     */
+    public static BigDecimal payAmountOf(Orders order) {
+        BigDecimal amount = order == null || order.getAmount() == null ? BigDecimal.ZERO : order.getAmount();
+        BigDecimal discount = order == null || order.getDiscountAmount() == null
+                ? BigDecimal.ZERO : order.getDiscountAmount();
+        return money(amount.subtract(discount).max(BigDecimal.ZERO));
     }
 }

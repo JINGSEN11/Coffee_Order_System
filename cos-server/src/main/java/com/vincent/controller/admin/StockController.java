@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.SkuCreateDTO;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController("adminStockController")
 @RequestMapping("/admin/stock")
+@OpLog(module = "库存")
 @RequiredArgsConstructor
 @Slf4j
 public class StockController {
@@ -36,6 +38,7 @@ public class StockController {
      */
     @PostMapping("/in")
     @RequirePerm("stock:adjust")
+    @OpLog(action = "入库")
     public Result<Void> stockIn(@RequestBody StockInDTO dto) {
         log.info("管理端入库操作：skuId={}, quantity={}", dto.getSkuId(), dto.getQuantity());
 

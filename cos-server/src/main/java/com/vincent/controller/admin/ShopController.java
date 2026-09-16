@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.ShopCreateDTO;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController("adminShopController")
 @RequestMapping("/admin/shop")
+@OpLog(module = "门店")
 @RequiredArgsConstructor
 @Slf4j
 public class ShopController {
@@ -72,6 +74,7 @@ public class ShopController {
 
     @PutMapping("/{id}/accept-order")
     @RequirePerm("shop:accept-toggle")
+    @OpLog(action = "切换接单开关")
     public Result<Void> toggleAcceptOrder(@PathVariable Long id, @RequestParam Integer acceptOrder) {
         shopService.toggleAcceptOrder(id, acceptOrder);
         return Result.success();

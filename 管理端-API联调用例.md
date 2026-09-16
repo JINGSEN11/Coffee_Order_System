@@ -527,6 +527,18 @@
 
 ## 9. Log 操作日志
 
+> **记什么**：`/admin/**` 下的**写操作**（POST / PUT / DELETE / PATCH）在**执行成功**后自动落一条记录，
+> 由 `OpLogAspect` 完成，业务代码无需埋点。读接口不记（避免把日志表刷成流水账），
+> 抛异常的调用也不记（`op_log` 表没有「结果」列，记下来会误导），
+> `/admin/auth/**`（登录、刷新令牌）不记 —— 认证事件不是「操作」，且那时还没有身份，
+> 记下来 `operator` 只能是「未知」。
+>
+> - `operator` 取当前登录员工的用户名；`ip` 依次取 `X-Forwarded-For` / `X-Real-IP` / `Proxy-Client-IP`，都没有则取 `remoteAddr`；
+> - `module` 来自控制器上的 `@OpLog(module=...)`，没标注则按 URI 推断（`/admin/product/...` → 商品）；
+> - `action` 来自 `@OpLog(action=...)`，没标注则用方法名；
+> - `detail` 记路径参数与查询参数（哪个订单被退了）以及 DTO 的 JSON，
+>   **密码/密钥类字段一律脱敏成 `***`**，长度上限 1000 字符。
+
 ### 9.1 分页查询操作日志
 
 - **URL**：`GET /log/page?operator=&module=&startDate=&endDate=&page=1&pageSize=10`
@@ -823,7 +835,7 @@
 > **`refundNo` 可选**：填微信退款单号便于对账；不传则按 `RF + yyyyMMdd + 5 位 id` 生成本地单号。
 >
 > **通过后的连锁动作**：订单置 `status=7 已退款`、`pickup_status=5 已作废`；
-> 归还库存、退回抵扣积分（写 `points_record` type=3）、释放优惠券。
+> 归还库存、退回抵扣积分（写 `points_record` type=3）、收回该单已发的消费积分（写 type=6）、释放优惠券。
 > 订单必须处于 `status=6 退款中` 才允许通过，否则报业务异常（防重复审核）。
 >
 > **拒绝后的连锁动作**：订单回到申请前的状态（出过餐回 `3 已完成`，否则回 `2 制作中`），

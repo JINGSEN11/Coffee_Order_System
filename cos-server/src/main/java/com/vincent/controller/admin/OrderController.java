@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.OrderQueryDTO;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController("adminOrderController")
 @RequestMapping("/admin/order")
+@OpLog(module = "订单")
 @RequiredArgsConstructor
 @Slf4j
 public class OrderController {
@@ -70,6 +72,7 @@ public class OrderController {
      */
     @PutMapping("/{id}/status")
     @RequirePerm({"order:accept", "order:finish", "order:call", "order:pickup"})
+    @OpLog(action = "推进订单状态")
     public Result<Void> updateStatus(@PathVariable Long id, @RequestParam Integer status) {
         log.info("管理端更新订单状态，id：{}，status：{}", id, status);
         orderService.updateStatus(id, status);
@@ -81,6 +84,7 @@ public class OrderController {
      */
     @DeleteMapping("/{id}")
     @RequirePerm("order:cancel")
+    @OpLog(action = "取消订单")
     public Result<Void> cancel(@PathVariable Long id, @RequestParam(required = false) String reason) {
         log.info("管理端取消订单，id：{}，原因：{}", id, reason);
         orderService.cancel(id, reason);

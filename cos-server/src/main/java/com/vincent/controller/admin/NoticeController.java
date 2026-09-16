@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.NoticeCreateDTO;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController("adminNoticeController")
 @RequestMapping("/admin/notice")
+@OpLog(module = "公告")
 @RequiredArgsConstructor
 @Slf4j
 public class NoticeController {

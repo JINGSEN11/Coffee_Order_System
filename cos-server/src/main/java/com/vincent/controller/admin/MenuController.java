@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.entity.Menu;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RestController("adminMenuController")
 @RequestMapping("/admin/menu")
+@OpLog(module = "菜单")
 @RequiredArgsConstructor
 @Slf4j
 public class MenuController {

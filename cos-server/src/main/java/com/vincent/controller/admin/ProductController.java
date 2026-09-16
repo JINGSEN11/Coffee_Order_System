@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.ProductCreateDTO;
@@ -21,6 +22,7 @@ import java.util.Map;
 
 @RestController("adminProductController")
 @RequestMapping("/admin/product")
+@OpLog(module = "商品")
 @RequiredArgsConstructor
 @Slf4j
 public class ProductController {

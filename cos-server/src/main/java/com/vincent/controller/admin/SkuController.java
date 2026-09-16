@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.SkuCreateDTO;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController("adminSkuController")
 @RequestMapping("/admin/sku")
+@OpLog(module = "SKU")
 @RequiredArgsConstructor
 @Slf4j
 public class SkuController {

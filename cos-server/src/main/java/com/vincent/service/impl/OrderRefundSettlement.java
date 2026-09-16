@@ -45,6 +45,7 @@ public class OrderRefundSettlement {
     private final MemberMapper memberMapper;
     private final PointsRecordMapper pointsRecordMapper;
     private final UserCouponMapper userCouponMapper;
+    private final MemberPointsService memberPointsService;
 
     /**
      * 执行退款结算：回退资源并把订单置为已退款（status=7）。
@@ -57,6 +58,8 @@ public class OrderRefundSettlement {
         releaseLockedCoupon(order);
         refundPoints(order, now);
         restoreStock(order);
+        // 收回这单已发的消费积分：退了钱还留着积分就是一个可反复套利的漏洞
+        memberPointsService.revokeForRefundedOrder(order, now);
 
         order.setStatus(7);
         order.setCancelTime(now);
@@ -72,10 +75,7 @@ public class OrderRefundSettlement {
 
     /** 实付金额 = 商品总额 - 优惠总额，用于退款金额的默认值与校验上限 */
     public BigDecimal payAmountOf(Orders order) {
-        BigDecimal amount = order.getAmount() == null ? BigDecimal.ZERO : order.getAmount();
-        BigDecimal discount = order.getDiscountAmount() == null
-                ? BigDecimal.ZERO : order.getDiscountAmount();
-        return AppCalc.money(amount.subtract(discount).max(BigDecimal.ZERO));
+        return AppCalc.payAmountOf(order);
     }
 
     /* ---------------- 内部回退动作 ---------------- */

@@ -93,6 +93,7 @@ public class AppOrderServiceImpl implements AppOrderService {
     private final AppConfigHelper appConfigHelper;
     private final AppShopResolver shopResolver;
     private final OrderRefundSettlement refundSettlement;
+    private final MemberPointsService memberPointsService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -457,7 +458,9 @@ public class AppOrderServiceImpl implements AppOrderService {
         PointsRecord record = new PointsRecord();
         record.setUserId(userId);
         record.setChangeValue(REVIEW_REWARD_POINTS);
-        record.setType(1);
+        // 评价奖励记 type=5，不能蹭 type=1「消费获得」—— 否则会员的积分明细里
+        // 会分不清哪些是消费挣的、哪些是写评价得的
+        record.setType(5);
         record.setOrderId(order.getId());
         record.setCreatedAt(now);
         pointsRecordMapper.insert(record);
@@ -689,6 +692,8 @@ public class AppOrderServiceImpl implements AppOrderService {
                 items.stream().map(OrderItem::getSkuId).filter(Objects::nonNull).distinct()
                         .collect(Collectors.toList()));
         consumePoints(order, now);
+        // 消费得积分（F-U20）：按实付金额发放，幂等，重复回调不会重复发
+        memberPointsService.awardForPaidOrder(order, now);
         log.info("订单 {} 支付成功，取餐码 {}，实付 {}", order.getOrderNo(), order.getPickupCode(), payAmount);
     }
 

@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.ReviewApproveDTO;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController("adminReviewController")
 @RequestMapping("/admin/review")
 @RequiredArgsConstructor
+@OpLog(module = "评价")
 @Slf4j
 @RequirePerm
 public class ReviewController {
@@ -39,6 +41,7 @@ public class ReviewController {
     }
 
     @PutMapping("/approve")
+    @OpLog(action = "评价审核")
     public Result<Void> approve(@RequestBody ReviewApproveDTO dto) {
         reviewService.approve(dto);
         return Result.success();

@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.BaseContext;
 import com.vincent.common.Result;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController("adminEmployeeController")
 @RequestMapping("/admin/employee")
+@OpLog(module = "员工")
 @RequiredArgsConstructor
 @Slf4j
 public class EmployeeController {
@@ -82,6 +84,7 @@ public class EmployeeController {
 
     @PutMapping("/{id}/reset-password")
     @RequirePerm("system:employee:reset")
+    @OpLog(action = "重置密码", args = false)
     public Result<Void> resetPassword(@PathVariable Long id, @RequestParam String newPassword) {
         employeeService.resetPassword(id, newPassword);
         return Result.success();

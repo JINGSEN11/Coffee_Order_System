@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.RefundQueryDTO;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController("adminRefundController")
 @RequestMapping("/admin/order/refund")
+@OpLog(module = "退款")
 @RequiredArgsConstructor
 @Slf4j
 public class RefundController {
@@ -56,6 +58,7 @@ public class RefundController {
      */
     @PutMapping("/status/{id}")
     @RequirePerm("order:refund:audit")
+    @OpLog(action = "审核退款")
     public Result<RefundStatusVO> updateStatus(@PathVariable Long id, @RequestBody RefundStatusDTO dto) {
         log.info("管理端审核退款：id={}, status={}, reason={}", id, dto.getStatus(), dto.getReason());
         return Result.success(refundRecordService.updateStatus(id, dto));

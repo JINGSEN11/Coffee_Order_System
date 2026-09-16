@@ -24,6 +24,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+        <!--
+            操作日志（F-A03）用 AOP 在管理端写操作成功后切一刀，把操作人/模块/动作/IP 落 op_log。
+            注意 Spring Boot 4 把 starter 名从 spring-boot-starter-aop 改成了 spring-boot-starter-aspectj，
+            写旧名字会因为 BOM 里没有而报「dependency.version is missing」。
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>

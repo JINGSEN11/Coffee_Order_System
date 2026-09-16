@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.TableQrCreateDTO;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController("adminTableQrController")
 @RequestMapping("/admin/table")
+@OpLog(module = "桌码")
 @RequiredArgsConstructor
 @Slf4j
 public class TableQrController {

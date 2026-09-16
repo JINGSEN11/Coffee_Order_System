@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.BaseContext;
 import com.vincent.common.Result;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController("adminMemberController")
 @RequestMapping("/admin/member")
+@OpLog(module = "会员")
 @RequiredArgsConstructor
 @Slf4j
 public class MemberController {

@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.CouponCreateDTO;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController("adminCouponController")
 @RequestMapping("/admin/coupon")
+@OpLog(module = "优惠券")
 @RequiredArgsConstructor
 @Slf4j
 public class CouponController {

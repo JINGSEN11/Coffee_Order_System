@@ -1,5 +1,6 @@
 package com.vincent.controller.admin;
 
+import com.vincent.annotation.OpLog;
 import com.vincent.annotation.RequirePerm;
 import com.vincent.common.Result;
 import com.vincent.dto.RoleCreateDTO;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RestController("adminRoleController")
 @RequestMapping("/admin/role")
+@OpLog(module = "角色")
 @RequiredArgsConstructor
 @Slf4j
 public class RoleController {
@@ -54,6 +56,7 @@ public class RoleController {
 
     @PutMapping("/{id}/assign-menus")
     @RequirePerm("system:role:edit")
+    @OpLog(action = "分配角色权限")
     public Result<Void> assignMenus(@PathVariable Long id, @RequestBody List<Long> menuIds) {
         roleService.assignMenus(id, menuIds);
         return Result.success();
